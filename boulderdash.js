@@ -1,17 +1,3 @@
-Boulderdash = function() {
-
-  //=========================================================================
-  // GENERAL purpose constants and helper methods
-  //=========================================================================
-
-  var KEY = { ENTER: 13, ESC: 27, SPACE: 32, PAGEUP: 33, PAGEDOWN: 34, LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40 };
-
-  var Dom = {
-    get:     function(id)       { return (id instanceof HTMLElement) ? id : document.getElementById(id); },
-    set:     function(id, html) { Dom.get(id).innerHTML = html; },
-    disable: function(id, on)   { Dom.get(id).className = on ? "disabled" : "" }
-  }
-
   function timestamp()            { return new Date().getTime();                             };
   function random(min, max)       { return (min + (Math.random() * (max - min)));            };
   function randomInt(min, max)    { return Math.floor(random(min,max));                      };
@@ -26,6 +12,22 @@ Boulderdash = function() {
                                      window.setTimeout(callback, 1000 / 60);
                                    }
   }
+
+
+Boulderdash = function() {
+
+  //=========================================================================
+  // GENERAL purpose constants and helper methods
+  //=========================================================================
+
+  var KEY = { ENTER: 13, ESC: 27, SPACE: 32, PAGEUP: 33, PAGEDOWN: 34, LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40 };
+
+  var Dom = {
+    get:     function(id)       { return (id instanceof HTMLElement) ? id : document.getElementById(id); },
+    set:     function(id, html) { Dom.get(id).innerHTML = html; },
+    disable: function(id, on)   { Dom.get(id).className = on ? "disabled" : "" }
+  }
+
 
   //=========================================================================
   // GAME constants and helpers
