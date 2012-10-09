@@ -249,14 +249,6 @@ BD.Game.prototype = {
         this.move(p, BD.DIR.RIGHT, rock);
 	},
 
-    updateBoulder: function(p) {
-	  return this.updateRock(p, BD.Entity.BOULDERFALLING);
-    },
-
-    updateDiamond: function(p) {
-	  return this.updateRock(p, BD.Entity.DIAMONDFALLING);
-    },
-
     updateRockFalling: function(p, rock, rockAtRest, convertedRock) {
       if (this.isempty(p, BD.DIR.DOWN))
         this.move(p, BD.DIR.DOWN, rock);
@@ -270,6 +262,14 @@ BD.Game.prototype = {
         this.move(p, BD.DIR.RIGHT, rock);
       else
         this.set(p, rockAtRest);
+    },
+
+    updateBoulder: function(p) {
+	  return this.updateRock(p, BD.Entity.BOULDERFALLING);
+    },
+
+    updateDiamond: function(p) {
+	  return this.updateRock(p, BD.Entity.DIAMONDFALLING);
     },
 
     updateBoulderFalling: function(p) {
