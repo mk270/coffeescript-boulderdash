@@ -67,7 +67,7 @@ BD.Game.prototype = {
     isfirefly:    function(p,dir)   { var o = this.get(p,dir); return BD.isFirefly(o);           },
     isbutterfly:  function(p,dir)   { var o = this.get(p,dir); return BD.isButterfly(o);         },
     isexplodable: function(p,dir)   { var o = this.get(p,dir); return o.explodable;           },
-    isconsumable: function(p,dir)   { var o = this.get(p,dir); return o.consumable;           },
+    isvulnerable: function(p,dir)   { var o = this.get(p,dir); return o.vulnerable;           },
     isrounded:    function(p,dir)   { var o = this.get(p,dir); return o.rounded;              },
 
     isfallingdiamond: function(p,dir) { var o = this.get(p,dir); return BD.Entity.DIAMONDFALLING === o; },
@@ -252,8 +252,8 @@ BD.Game.prototype = {
     updateRockFalling: function(p, rock, rockAtRest, convertedRock) {
       if (this.isempty(p, BD.DIR.DOWN))
         this.move(p, BD.DIR.DOWN, rock);
-      else if (this.isexplodable(p, BD.DIR.DOWN))
-        this.explode(p, BD.DIR.DOWN);
+      else if (this.isvulnerable(p, BD.DIR.DOWN))
+        this.explode_dir(p, BD.DIR.DOWN);
       else if (this.ismagic(p, BD.DIR.DOWN))
         this.domagic(p, convertedRock);
       else if (this.isrounded(p, BD.DIR.DOWN) && this.isempty(p, BD.DIR.LEFT) && this.isempty(p, BD.DIR.DOWNLEFT))
@@ -350,17 +350,19 @@ BD.Game.prototype = {
       }
     },
 
-    explode: function(p, dir) {
-      var p2        = new BD.Point(p.x, p.y, dir);
-      var explosion = (this.isbutterfly(p2) ? BD.Entity.EXPLODETODIAMOND0 : BD.Entity.EXPLODETOSPACE0);
-      this.set(p2, explosion);
+    explode: function(p) {
+      var explosion = (this.isbutterfly(p) ? BD.Entity.EXPLODETODIAMOND0 : BD.Entity.EXPLODETOSPACE0);
+      this.set(p, explosion);
       for(dir = 0 ; dir < 8 ; ++dir) { // for each of the 8 directions
-        if (this.isexplodable(p2, dir))
-          this.explode(p2, dir);
-        else if (this.isconsumable(p2, dir))
-          this.set(p2, explosion, dir);
+        if (this.isexplodable(p, dir))
+          this.set(p, explosion, dir);
       }
     },
+
+    explode_dir: function(p, dir) {
+	  var p2 = new BD.Point(p.x, p.y, dir);
+	  this.explode(p2);
+	},
 
     push: function(p, dir) {
       p2 = new BD.Point(p.x, p.y, dir);
