@@ -280,12 +280,28 @@ BD.Game.prototype = {
 	  return this.updateRockFalling(p, BD.Entity.DIAMONDFALLING, BD.Entity.DIAMOND, BD.Entity.BOULDER);
     },
 
+    adjacent: function(p, fn) {
+	  var dirs = [ BD.DIR.UP, BD.DIR.DOWN, BD.DIR.LEFT, BD.DIR.RIGHT ];
+
+	  for(var i = 0; i < dirs.length; i++) {
+		if(fn(p, dirs[i]))
+		  return true;
+	  }
+	  return false;
+	},
+
     updateFly: function(p, dir, newdir, olddir, phases) {
-      if (this.isrockford(p, BD.DIR.UP) || this.isrockford(p, BD.DIR.DOWN) || this.isrockford(p, BD.DIR.LEFT) || this.isrockford(p, BD.DIR.RIGHT))
-        this.explode(p);
-      else if (this.isamoeba(p, BD.DIR.UP) || this.isamoeba(p, BD.DIR.DOWN) || this.isamoeba(p, BD.DIR.LEFT) || this.isamoeba(p, BD.DIR.RIGHT))
-        this.explode(p);
-      else if (this.isempty(p, newdir))
+	  var self = this;
+
+	  var by_rockford = function(p, d) { return self.isrockford(p, d); };
+	  var by_amoeba   = function(p, d) { return self.isamoeba(p, d); };
+
+	  if(this.adjacent(p, by_rockford) || this.adjacent(p, by_amoeba)) {
+		this.explode(p);
+		return;
+	  }
+
+	  if (this.isempty(p, newdir))
         this.move(p, newdir, phases[newdir]);
       else if (this.isempty(p, dir))
         this.move(p, dir, phases[dir]);
