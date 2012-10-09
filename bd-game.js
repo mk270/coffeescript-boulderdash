@@ -280,32 +280,31 @@ BD.Game.prototype = {
 	  return this.updateRockFalling(p, BD.Entity.DIAMONDFALLING, BD.Entity.DIAMOND, BD.Entity.BOULDER);
     },
 
-    updateFirefly: function(p, dir) {
-      var newdir = BD.rotateLeft(dir);
+    updateFly: function(p, dir, newdir, olddir, phases) {
       if (this.isrockford(p, BD.DIR.UP) || this.isrockford(p, BD.DIR.DOWN) || this.isrockford(p, BD.DIR.LEFT) || this.isrockford(p, BD.DIR.RIGHT))
         this.explode(p);
       else if (this.isamoeba(p, BD.DIR.UP) || this.isamoeba(p, BD.DIR.DOWN) || this.isamoeba(p, BD.DIR.LEFT) || this.isamoeba(p, BD.DIR.RIGHT))
         this.explode(p);
       else if (this.isempty(p, newdir))
-        this.move(p, newdir, FIREFLIES[newdir]);
+        this.move(p, newdir, phases[newdir]);
       else if (this.isempty(p, dir))
-        this.move(p, dir, FIREFLIES[dir]);
+        this.move(p, dir, phases[dir]);
       else
-        this.set(p, FIREFLIES[BD.rotateRight(dir)]);
+        this.set(p, phases[olddir]);
+	},
+
+    updateFirefly: function(p, dir) {
+      var newdir = BD.rotateLeft(dir);
+	  var olddir = BD.rotateRight(dir);
+	  var phases = FIREFLIES;
+	  this.updateFly(p, dir, newdir, olddir, phases);
     },
 
     updateButterfly: function(p, dir) {
       var newdir = BD.rotateRight(dir);
-      if (this.isrockford(p, BD.DIR.UP) || this.isrockford(p, BD.DIR.DOWN) || this.isrockford(p, BD.DIR.LEFT) || this.isrockford(p, BD.DIR.RIGHT))
-        this.explode(p);
-      else if (this.isamoeba(p, BD.DIR.UP) || this.isamoeba(p, BD.DIR.DOWN) || this.isamoeba(p, BD.DIR.LEFT) || this.isamoeba(p, BD.DIR.RIGHT))
-        this.explode(p);
-      else if (this.isempty(p, newdir))
-        this.move(p, newdir, BUTTERFLIES[newdir]);
-      else if (this.isempty(p, dir))
-        this.move(p, dir, BUTTERFLIES[dir]);
-      else
-        this.set(p, BUTTERFLIES[BD.rotateLeft(dir)]);
+	  var olddir = BD.rotateLeft(dir);
+	  var phases = BUTTERFLIES;
+	  this.updateFly(p, dir, newdir, olddir, phases);
     },
 
     updateExplodeToSpace: function(p, n) {
