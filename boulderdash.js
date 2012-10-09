@@ -525,13 +525,21 @@ BD.Game.prototype = {
       }
     },
 
-    updateBoulder: function(p) {
-      if (this.isempty(p, BD.DIR.DOWN))
-        this.set(p, BD.Entity.BOULDERFALLING);
+    updateRock: function(p, rock) {
+	  if (this.isempty(p, BD.DIR.DOWN))
+        this.set(p, rock);
       else if (this.isrounded(p, BD.DIR.DOWN) && this.isempty(p, BD.DIR.LEFT) && this.isempty(p, BD.DIR.DOWNLEFT))
-        this.move(p, BD.DIR.LEFT, BD.Entity.BOULDERFALLING);
+        this.move(p, BD.DIR.LEFT, rock);
       else if (this.isrounded(p, BD.DIR.DOWN) && this.isempty(p, BD.DIR.RIGHT) && this.isempty(p, BD.DIR.DOWNRIGHT))
-        this.move(p, BD.DIR.RIGHT, BD.Entity.BOULDERFALLING);
+        this.move(p, BD.DIR.RIGHT, rock);
+	},
+
+    updateBoulder: function(p) {
+	  return this.updateRock(p, BD.Entity.BOULDERFALLING);
+    },
+
+    updateDiamond: function(p) {
+	  return this.updateRock(p, BD.Entity.DIAMONDFALLING);
     },
 
     updateBoulderFalling: function(p) {
@@ -547,15 +555,6 @@ BD.Game.prototype = {
         this.move(p, BD.DIR.RIGHT, BD.Entity.BOULDERFALLING);
       else
         this.set(p, BD.Entity.BOULDER);
-    },
-
-    updateDiamond: function(p) {
-      if (this.isempty(p, BD.DIR.DOWN))
-        this.set(p, BD.Entity.DIAMONDFALLING);
-      else if (this.isrounded(p, BD.DIR.DOWN) && this.isempty(p, BD.DIR.LEFT) && this.isempty(p, BD.DIR.DOWNLEFT))
-        this.move(p, BD.DIR.LEFT, BD.Entity.DIAMONDFALLING);
-      else if (this.isrounded(p, BD.DIR.DOWN) && this.isempty(p, BD.DIR.RIGHT) && this.isempty(p, BD.DIR.DOWNRIGHT))
-        this.move(p, BD.DIR.RIGHT, BD.Entity.DIAMONDFALLING);
     },
 
     updateDiamondFalling: function(p) {
