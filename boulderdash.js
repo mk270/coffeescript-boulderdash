@@ -13,38 +13,26 @@
                                    }
   }
 
+Object.prototype.extend = function(source) {
+    for (var property in source) {
+        if (source.hasOwnProperty(property)) {
+            this[property] = source[property];
+        }
+    }
+    return this;
+};
 
-Boulderdash = function() {
+// key, dom, dir, object, point, game, render, loop
 
-  //=========================================================================
-  // GENERAL purpose constants and helper methods
-  //=========================================================================
-
-  var KEY = { ENTER: 13, ESC: 27, SPACE: 32, PAGEUP: 33, PAGEDOWN: 34, LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40 };
-
-  var Dom = {
-    get:     function(id)       { return (id instanceof HTMLElement) ? id : document.getElementById(id); },
-    set:     function(id, html) { Dom.get(id).innerHTML = html; },
-    disable: function(id, on)   { Dom.get(id).className = on ? "disabled" : "" }
-  }
-
-
-  //=========================================================================
-  // GAME constants and helpers
-  //=========================================================================
-
-  var DIR  = { UP: 0, UPRIGHT: 1, RIGHT: 2, DOWNRIGHT: 3, DOWN: 4, DOWNLEFT: 5, LEFT: 6, UPLEFT: 7 };
-  var DIRX = [     0,          1,        1,            1,       0,          -1,      -1,        -1 ];
-  var DIRY = [    -1,         -1,        0,            1,       1,           1,       0,        -1 ];
-
-  function rotateLeft(dir)  { return (dir-2) + (dir < 2 ? 8 : 0); };
-  function rotateRight(dir) { return (dir+2) - (dir > 5 ? 8 : 0); };
-  function horizontal(dir)  { return (dir === DIR.LEFT) || (dir === DIR.RIGHT); };
-  function vertical(dir)    { return (dir === DIR.UP)   || (dir === DIR.DOWN);  };
-
-  //-------------------------------------------------------------------------
-
-  var OBJECT = {
+BD = {};
+BD.extend({
+  KEY: { ENTER: 13, ESC: 27, SPACE: 32, PAGEUP: 33, PAGEDOWN: 34, LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40 },
+  Dom: {
+	get:     function(id)       { return (id instanceof HTMLElement) ? id : document.getElementById(id); },
+	set:     function(id, html) { BD.Dom.get(id).innerHTML = html; },
+	disable: function(id, on)   { BD.Dom.get(id).className = on ? "disabled" : "" }
+  },
+  OBJECT: {
     SPACE:             { code: 0x00, rounded: false, explodable: false, consumable: true,  sprite: { x: 0, y: 6                 }, flash: { x: 4, y: 0 } },
     DIRT:              { code: 0x01, rounded: false, explodable: false, consumable: true,  sprite: { x: 1, y: 7                 } },
     BRICKWALL:         { code: 0x02, rounded: true,  explodable: false, consumable: true,  sprite: { x: 3, y: 6                 } },
@@ -85,8 +73,194 @@ Boulderdash = function() {
                                                                                               tap: { x: 0, y: 2,  f: 8, fps: 20 },   // foot tapping
                                                                                          blinktap: { x: 0, y: 3,  f: 8, fps: 20 } }, // foot tapping and blinking
     AMOEBA:            { code: 0x3A, rounded: false, explodable: false, consumable: true,  sprite: { x: 0, y: 8,  f: 8, fps: 20 } }
-  };
+  },
+  DIR: { UP: 0, UPRIGHT: 1, RIGHT: 2, DOWNRIGHT: 3, DOWN: 4, DOWNLEFT: 5, LEFT: 6, UPLEFT: 7 },
+  DIRX: [     0,          1,        1,            1,       0,          -1,      -1,        -1 ],
+  DIRY: [    -1,         -1,        0,            1,       1,           1,       0,        -1 ],
+  rotateLeft: function(dir)  { return (dir-2) + (dir < 2 ? 8 : 0); },
+  rotateRight: function(dir) { return (dir+2) - (dir > 5 ? 8 : 0); },
+  horizontal: function(dir)  { return (dir === BD.DIR.LEFT) || (dir === BD.DIR.RIGHT); },
+  vertical: function(dir)    { return (dir === BD.DIR.UP)   || (dir === BD.DIR.DOWN);  }
 
+
+
+});
+
+
+BD.Render = function(game, moving) {
+  this.game = game;
+  this.moving = moving;
+    game.subscribe('level', this.onChangeLevel,   this);
+    game.subscribe('score', this.invalidateScore, this);
+    game.subscribe('timer', this.invalidateScore, this);
+    game.subscribe('flash', this.invalidateCave,  this);
+    game.subscribe('cell',  this.invalidateCell,  this);
+  }
+
+BD.Render.prototype = {
+
+    reset: function(sprites) {
+      this.canvas     = BD.Dom.get('canvas');
+      this.ctx        = this.canvas.getContext('2d');
+      this.sprites    = sprites;
+      this.fps        = 30;
+      this.step       = 1/this.fps;
+      this.frame      = 0;
+      this.ctxSprites = document.createElement('canvas').getContext('2d');
+      this.ctxSprites.canvas.width  = this.sprites.width;
+      this.ctxSprites.canvas.height = this.sprites.height;
+      this.ctxSprites.drawImage(this.sprites, 0, 0, this.sprites.width, this.sprites.height, 0, 0, this.sprites.width, this.sprites.height);
+      this.resize();
+    },
+
+    onChangeLevel: function(info) {
+      this.description(info.description);
+      this.colors(info.color1, info.color2);
+      this.invalidateCave();
+      this.invalidateScore();
+      BD.Dom.disable('prev', info.index === 0);
+      BD.Dom.disable('next', info.index === CAVES.length-1);
+    },
+
+    invalid: { score: true, cave:  true },
+    invalidateScore: function()     { this.invalid.score = true;  },
+    invalidateCave:  function()     { this.invalid.cave  = true;  },
+    invalidateCell:  function(cell) { cell.invalid       = true;  },
+    validateScore:   function()     { this.invalid.score = false; },
+    validateCave:    function()     { this.invalid.cave  = false; },
+    validateCell:    function(cell) { cell.invalid       = false; },
+
+    update: function() {
+      this.frame++;
+      this.score();
+      this.game.eachCell(this.cell, this);
+      this.validateCave();
+    },
+
+    score: function() {
+      if (this.invalid.score) {
+        this.ctx.fillStyle='black';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.dy);
+        this.number(3, this.game.diamonds.needed, 2, true);
+        this.letter(  5, '$');
+        this.number(6,  this.game.diamonds.collected >= this.game.diamonds.needed ? this.game.diamonds.extra : this.game.diamonds.value, 2);
+        this.number(12, this.game.diamonds.collected, 2, true);
+        this.number(25, this.game.timer, 3);
+        this.number(31, this.game.score, 6);
+        this.validateScore();
+      }
+    },
+
+    number: function(x, n, width, yellow) {
+      var i, word = ("000000" + n.toString()).slice(-(width||2));
+      for(i = 0 ; i < word.length ; ++i)
+        this.letter(x+i, word[i], yellow);
+    },
+
+    letter: function(x, c, yellow) {
+      this.ctx.drawImage(this.ctxSprites.canvas, (yellow ? 9 : 8) * 32, (c.charCodeAt(0)-32) * 16, 32, 16, (x*this.dx), 0, this.dx, this.dy-4); // auto scaling here from 32/32 to dx/dy can be slow... we should optimize and precatch rendered sprites at exact cell size (dx,dy)
+    },
+
+    cell: function(cell) {
+      var object = cell.object,
+          sprite = object.sprite;
+      if (this.invalid.cave || cell.invalid || (sprite.f > 1) || (object === BD.OBJECT.ROCKFORD)) {
+        if (object === BD.OBJECT.ROCKFORD)
+          return this.rockford(cell);
+        else if ((object === BD.OBJECT.SPACE) && (this.game.flash > this.game.frame))
+          sprite = BD.OBJECT.SPACE.flash;
+        else if ((object === BD.OBJECT.MAGICWALL) && !this.game.magic.active)
+          sprite = BD.OBJECT.BRICKWALL.sprite;
+        this.sprite(sprite, cell);
+        this.validateCell(cell);
+      }
+    },
+
+    sprite: function(sprite, cell) {
+      var f = sprite.f ? (Math.floor((sprite.fps/this.fps) * this.frame) % sprite.f) : 0;
+      this.ctx.drawImage(this.ctxSprites.canvas, (sprite.x + f) * 32, sprite.y * 32, 32, 32, cell.p.x * this.dx, (1+cell.p.y) * this.dy, this.dx, this.dy); // auto scaling here from 32/32 to dx/dy can be slow... we should optimize and precatch rendered sprites at exact cell size (dx,dy)
+    },
+
+    rockford: function(cell) {
+      if ((this.moving.dir == BD.DIR.LEFT) || (BD.vertical(this.moving.dir) && (this.moving.lastXDir == BD.DIR.LEFT)))
+        this.sprite(BD.OBJECT.ROCKFORD.left, cell);
+      else if ((this.moving.dir == BD.DIR.RIGHT) || (BD.vertical(this.moving.dir) && (this.moving.lastXDir == BD.DIR.RIGHT)))
+        this.sprite(BD.OBJECT.ROCKFORD.right, cell);
+      else if (this.game.idle.blink && !this.game.idle.tap)
+        this.sprite(BD.OBJECT.ROCKFORD.blink, cell);
+      else if (!this.game.idle.blink && this.game.idle.tap)
+        this.sprite(BD.OBJECT.ROCKFORD.tap, cell);
+      else if (this.game.idle.blink && this.game.idle.tap)
+        this.sprite(BD.OBJECT.ROCKFORD.blinktap, cell);
+      else
+        this.sprite(BD.OBJECT.ROCKFORD.sprite, cell);
+    },
+
+    description: function(msg) {
+      BD.Dom.set('description', msg);
+    },
+
+    colors: function(color1, color2) {
+      this.ctxSprites.drawImage(this.sprites, 0, 0, this.sprites.width, this.sprites.height, 0, 0, this.sprites.width, this.sprites.height);
+      var pixels = this.ctxSprites.getImageData(0, 0, this.sprites.width, this.sprites.height);
+      var x, y, n, r, g, b, a;
+      for(y = 0 ; y < this.sprites.height ; ++y) {
+        for(x = 0 ; x < this.sprites.width ; ++x) {
+          n = (y*this.sprites.width*4) + (x*4);
+          color = (pixels.data[n + 0] << 16) + 
+                  (pixels.data[n + 1] << 8) +
+                  (pixels.data[n + 2] << 0);
+          if (color == 0x3F3F3F) { // mostly the metalic wall
+            pixels.data[n + 0] = (color2 >> 16) & 0xFF;
+            pixels.data[n + 1] = (color2 >> 8)  & 0xFF;
+            pixels.data[n + 2] = (color2 >> 0)  & 0xFF;
+          }
+          else if (color == 0xA52A00) { // mostly the dirt
+            pixels.data[n + 0] = (color1 >> 16) & 0xFF;
+            pixels.data[n + 1] = (color1 >> 8)  & 0xFF;
+            pixels.data[n + 2] = (color1 >> 0)  & 0xFF;
+          }
+        }
+      }
+      this.ctxSprites.putImageData(pixels, 0, 0);
+    },
+
+    resize: function() {
+      var visibleArea = { w: 40, h: 23 };            // 40x22 + 1 row for score at top - TODO: scrollable area
+      this.canvas.width  = this.canvas.clientWidth;  // set canvas logical size equal to its physical size
+      this.canvas.height = this.canvas.clientHeight; // (ditto)
+      this.dx = this.canvas.width  / visibleArea.w;  // calculate pixel size of a single game cell
+      this.dy = this.canvas.height / visibleArea.h;  // (ditto)
+      this.invalidateScore();
+      this.invalidateCave();
+    }
+
+  }
+
+
+Boulderdash = function() {
+
+  //=========================================================================
+  // GENERAL purpose constants and helper methods
+  //=========================================================================
+
+  var KEY = BD.KEY;
+
+  var Dom = BD.Dom;
+
+  var DIR  = BD.DIR;
+  var DIRX = BD.DIRX;
+  var DIRY = BD.DIRY;
+
+  function rotateLeft(dir)  { return (dir-2) + (dir < 2 ? 8 : 0); };
+  function rotateRight(dir) { return (dir+2) - (dir > 5 ? 8 : 0); };
+  function horizontal(dir)  { return (dir === DIR.LEFT) || (dir === DIR.RIGHT); };
+  function vertical(dir)    { return (dir === DIR.UP)   || (dir === DIR.DOWN);  };
+
+  //-------------------------------------------------------------------------
+
+  var OBJECT = BD.OBJECT;
+ 
   for(var key in OBJECT) {
     OBJECT[key].name = key;                 // give it a human friendly name
     OBJECT[OBJECT[key].code] = OBJECT[key]; // and allow lookup by code
@@ -536,158 +710,32 @@ Boulderdash = function() {
       }
     }
 
-  }
+  };
 
-  //=========================================================================
-  // GAME RENDERING
-  //=========================================================================
-
-  function Render(game) {
-    game.subscribe('level', this.onChangeLevel,   this);
-    game.subscribe('score', this.invalidateScore, this);
-    game.subscribe('timer', this.invalidateScore, this);
-    game.subscribe('flash', this.invalidateCave,  this);
-    game.subscribe('cell',  this.invalidateCell,  this);
-  }
-
-  Render.prototype = {
-
-    reset: function(sprites) {
-      this.canvas     = Dom.get('canvas');
-      this.ctx        = this.canvas.getContext('2d');
-      this.sprites    = sprites;
-      this.fps        = 30;
-      this.step       = 1/this.fps;
-      this.frame      = 0;
-      this.ctxSprites = document.createElement('canvas').getContext('2d');
-      this.ctxSprites.canvas.width  = this.sprites.width;
-      this.ctxSprites.canvas.height = this.sprites.height;
-      this.ctxSprites.drawImage(this.sprites, 0, 0, this.sprites.width, this.sprites.height, 0, 0, this.sprites.width, this.sprites.height);
-      this.resize();
-    },
-
-    onChangeLevel: function(info) {
-      this.description(info.description);
-      this.colors(info.color1, info.color2);
-      this.invalidateCave();
-      this.invalidateScore();
-      Dom.disable('prev', info.index === 0);
-      Dom.disable('next', info.index === CAVES.length-1);
-    },
-
-    invalid: { score: true, cave:  true },
-    invalidateScore: function()     { this.invalid.score = true;  },
-    invalidateCave:  function()     { this.invalid.cave  = true;  },
-    invalidateCell:  function(cell) { cell.invalid       = true;  },
-    validateScore:   function()     { this.invalid.score = false; },
-    validateCave:    function()     { this.invalid.cave  = false; },
-    validateCell:    function(cell) { cell.invalid       = false; },
-
-    update: function() {
-      this.frame++;
-      this.score();
-      game.eachCell(this.cell, this);
-      this.validateCave();
-    },
-
-    score: function() {
-      if (this.invalid.score) {
-        this.ctx.fillStyle='black';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.dy);
-        this.number(3, game.diamonds.needed, 2, true);
-        this.letter(  5, '$');
-        this.number(6,  game.diamonds.collected >= game.diamonds.needed ? game.diamonds.extra : game.diamonds.value, 2);
-        this.number(12, game.diamonds.collected, 2, true);
-        this.number(25, game.timer, 3);
-        this.number(31, game.score, 6);
-        this.validateScore();
-      }
-    },
-
-    number: function(x, n, width, yellow) {
-      var i, word = ("000000" + n.toString()).slice(-(width||2));
-      for(i = 0 ; i < word.length ; ++i)
-        this.letter(x+i, word[i], yellow);
-    },
-
-    letter: function(x, c, yellow) {
-      this.ctx.drawImage(this.ctxSprites.canvas, (yellow ? 9 : 8) * 32, (c.charCodeAt(0)-32) * 16, 32, 16, (x*this.dx), 0, this.dx, this.dy-4); // auto scaling here from 32/32 to dx/dy can be slow... we should optimize and precatch rendered sprites at exact cell size (dx,dy)
-    },
-
-    cell: function(cell) {
-      var object = cell.object,
-          sprite = object.sprite;
-      if (this.invalid.cave || cell.invalid || (sprite.f > 1) || (object === OBJECT.ROCKFORD)) {
-        if (object === OBJECT.ROCKFORD)
-          return this.rockford(cell);
-        else if ((object === OBJECT.SPACE) && (game.flash > game.frame))
-          sprite = OBJECT.SPACE.flash;
-        else if ((object === OBJECT.MAGICWALL) && !game.magic.active)
-          sprite = OBJECT.BRICKWALL.sprite;
-        this.sprite(sprite, cell);
-        this.validateCell(cell);
-      }
-    },
-
-    sprite: function(sprite, cell) {
-      var f = sprite.f ? (Math.floor((sprite.fps/this.fps) * this.frame) % sprite.f) : 0;
-      this.ctx.drawImage(this.ctxSprites.canvas, (sprite.x + f) * 32, sprite.y * 32, 32, 32, cell.p.x * this.dx, (1+cell.p.y) * this.dy, this.dx, this.dy); // auto scaling here from 32/32 to dx/dy can be slow... we should optimize and precatch rendered sprites at exact cell size (dx,dy)
-    },
-
-    rockford: function(cell) {
-      if ((moving.dir == DIR.LEFT) || (vertical(moving.dir) && (moving.lastXDir == DIR.LEFT)))
-        this.sprite(OBJECT.ROCKFORD.left, cell);
-      else if ((moving.dir == DIR.RIGHT) || (vertical(moving.dir) && (moving.lastXDir == DIR.RIGHT)))
-        this.sprite(OBJECT.ROCKFORD.right, cell);
-      else if (game.idle.blink && !game.idle.tap)
-        this.sprite(OBJECT.ROCKFORD.blink, cell);
-      else if (!game.idle.blink && game.idle.tap)
-        this.sprite(OBJECT.ROCKFORD.tap, cell);
-      else if (game.idle.blink && game.idle.tap)
-        this.sprite(OBJECT.ROCKFORD.blinktap, cell);
-      else
-        this.sprite(OBJECT.ROCKFORD.sprite, cell);
-    },
-
-    description: function(msg) {
-      Dom.set('description', msg);
-    },
-
-    colors: function(color1, color2) {
-      this.ctxSprites.drawImage(this.sprites, 0, 0, this.sprites.width, this.sprites.height, 0, 0, this.sprites.width, this.sprites.height);
-      var pixels = this.ctxSprites.getImageData(0, 0, this.sprites.width, this.sprites.height);
-      var x, y, n, r, g, b, a;
-      for(y = 0 ; y < this.sprites.height ; ++y) {
-        for(x = 0 ; x < this.sprites.width ; ++x) {
-          n = (y*this.sprites.width*4) + (x*4);
-          color = (pixels.data[n + 0] << 16) + 
-                  (pixels.data[n + 1] << 8) +
-                  (pixels.data[n + 2] << 0);
-          if (color == 0x3F3F3F) { // mostly the metalic wall
-            pixels.data[n + 0] = (color2 >> 16) & 0xFF;
-            pixels.data[n + 1] = (color2 >> 8)  & 0xFF;
-            pixels.data[n + 2] = (color2 >> 0)  & 0xFF;
-          }
-          else if (color == 0xA52A00) { // mostly the dirt
-            pixels.data[n + 0] = (color1 >> 16) & 0xFF;
-            pixels.data[n + 1] = (color1 >> 8)  & 0xFF;
-            pixels.data[n + 2] = (color1 >> 0)  & 0xFF;
-          }
-        }
-      }
-      this.ctxSprites.putImageData(pixels, 0, 0);
-    },
-
-    resize: function() {
-      var visibleArea = { w: 40, h: 23 };            // 40x22 + 1 row for score at top - TODO: scrollable area
-      this.canvas.width  = this.canvas.clientWidth;  // set canvas logical size equal to its physical size
-      this.canvas.height = this.canvas.clientHeight; // (ditto)
-      this.dx = this.canvas.width  / visibleArea.w;  // calculate pixel size of a single game cell
-      this.dy = this.canvas.height / visibleArea.h;  // (ditto)
-      this.invalidateScore();
-      this.invalidateCave();
+  var moving = {
+    dir:      DIR.NONE,
+    lastXDir: DIR.NONE,
+    up: false, down: false, left: false, right: false, grab: false,
+    startUp:    function() { this.up    = true; this.dir = DIR.UP;   },
+    startDown:  function() { this.down  = true; this.dir = DIR.DOWN; },
+    startLeft:  function() { this.left  = true; this.dir = DIR.LEFT;  this.lastXDir = DIR.LEFT;  },
+    startRight: function() { this.right = true; this.dir = DIR.RIGHT; this.lastXDir = DIR.RIGHT; },
+    startGrab:  function() { this.grab  = true; },
+    stopUp:     function() { this.up    = false; this.dir = (this.dir == DIR.UP)    ? this.where() : this.dir; },
+    stopDown:   function() { this.down  = false; this.dir = (this.dir == DIR.DOWN)  ? this.where() : this.dir; },
+    stopLeft:   function() { this.left  = false; this.dir = (this.dir == DIR.LEFT)  ? this.where() : this.dir; },
+    stopRight:  function() { this.right = false, this.dir = (this.dir == DIR.RIGHT) ? this.where() : this.dir; },
+    stopGrab:   function() { this.grab  = false; },
+    where: function() {
+      if (this.up)
+        return DIR.UP;
+      else if (this.down)
+        return DIR.DOWN;
+      else if (this.left)
+        return DIR.LEFT;
+      else if (this.right)
+        return DIR.RIGHT;
     }
-
   }
 
   //=========================================================================
@@ -695,7 +743,7 @@ Boulderdash = function() {
   //=========================================================================
 
   var game   = new Game(),       // the boulderdash game logic (rendering independent)
-      render = new Render(game), // the boulderdash game renderer
+      render = new BD.Render(game, moving), // the boulderdash game renderer
       stats  = new Stats();      // the FPS counter widget
 
   //-------------------------------------------------------------------------
@@ -773,32 +821,6 @@ Boulderdash = function() {
       case KEY.LEFT:  moving.stopLeft();  handled = true; break;
       case KEY.RIGHT: moving.stopRight(); handled = true; break;
       case KEY.SPACE: moving.stopGrab(); handled = true; break;
-    }
-  }
-
-  var moving = {
-    dir:      DIR.NONE,
-    lastXDir: DIR.NONE,
-    up: false, down: false, left: false, right: false, grab: false,
-    startUp:    function() { this.up    = true; this.dir = DIR.UP;   },
-    startDown:  function() { this.down  = true; this.dir = DIR.DOWN; },
-    startLeft:  function() { this.left  = true; this.dir = DIR.LEFT;  this.lastXDir = DIR.LEFT;  },
-    startRight: function() { this.right = true; this.dir = DIR.RIGHT; this.lastXDir = DIR.RIGHT; },
-    startGrab:  function() { this.grab  = true; },
-    stopUp:     function() { this.up    = false; this.dir = (this.dir == DIR.UP)    ? this.where() : this.dir; },
-    stopDown:   function() { this.down  = false; this.dir = (this.dir == DIR.DOWN)  ? this.where() : this.dir; },
-    stopLeft:   function() { this.left  = false; this.dir = (this.dir == DIR.LEFT)  ? this.where() : this.dir; },
-    stopRight:  function() { this.right = false, this.dir = (this.dir == DIR.RIGHT) ? this.where() : this.dir; },
-    stopGrab:   function() { this.grab  = false; },
-    where: function() {
-      if (this.up)
-        return DIR.UP;
-      else if (this.down)
-        return DIR.DOWN;
-      else if (this.left)
-        return DIR.LEFT;
-      else if (this.right)
-        return DIR.RIGHT;
     }
   }
 
