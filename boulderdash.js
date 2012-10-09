@@ -32,7 +32,7 @@ BD.extend({
 	set:     function(id, html) { BD.Dom.get(id).innerHTML = html; },
 	disable: function(id, on)   { BD.Dom.get(id).className = on ? "disabled" : "" }
   },
-  OBJECT: {
+  ENTITY: {
     SPACE:             { code: 0x00, rounded: false, explodable: false, consumable: true,  sprite: { x: 0, y: 6                 }, flash: { x: 4, y: 0 } },
     DIRT:              { code: 0x01, rounded: false, explodable: false, consumable: true,  sprite: { x: 1, y: 7                 } },
     BRICKWALL:         { code: 0x02, rounded: true,  explodable: false, consumable: true,  sprite: { x: 3, y: 6                 } },
@@ -164,13 +164,13 @@ BD.Render.prototype = {
     cell: function(cell) {
       var object = cell.object,
           sprite = object.sprite;
-      if (this.invalid.cave || cell.invalid || (sprite.f > 1) || (object === BD.OBJECT.ROCKFORD)) {
-        if (object === BD.OBJECT.ROCKFORD)
+      if (this.invalid.cave || cell.invalid || (sprite.f > 1) || (object === BD.ENTITY.ROCKFORD)) {
+        if (object === BD.ENTITY.ROCKFORD)
           return this.rockford(cell);
-        else if ((object === BD.OBJECT.SPACE) && (this.game.flash > this.game.frame))
-          sprite = BD.OBJECT.SPACE.flash;
-        else if ((object === BD.OBJECT.MAGICWALL) && !this.game.magic.active)
-          sprite = BD.OBJECT.BRICKWALL.sprite;
+        else if ((object === BD.ENTITY.SPACE) && (this.game.flash > this.game.frame))
+          sprite = BD.ENTITY.SPACE.flash;
+        else if ((object === BD.ENTITY.MAGICWALL) && !this.game.magic.active)
+          sprite = BD.ENTITY.BRICKWALL.sprite;
         this.sprite(sprite, cell);
         this.validateCell(cell);
       }
@@ -183,17 +183,17 @@ BD.Render.prototype = {
 
     rockford: function(cell) {
       if ((this.moving.dir == BD.DIR.LEFT) || (BD.vertical(this.moving.dir) && (this.moving.lastXDir == BD.DIR.LEFT)))
-        this.sprite(BD.OBJECT.ROCKFORD.left, cell);
+        this.sprite(BD.ENTITY.ROCKFORD.left, cell);
       else if ((this.moving.dir == BD.DIR.RIGHT) || (BD.vertical(this.moving.dir) && (this.moving.lastXDir == BD.DIR.RIGHT)))
-        this.sprite(BD.OBJECT.ROCKFORD.right, cell);
+        this.sprite(BD.ENTITY.ROCKFORD.right, cell);
       else if (this.game.idle.blink && !this.game.idle.tap)
-        this.sprite(BD.OBJECT.ROCKFORD.blink, cell);
+        this.sprite(BD.ENTITY.ROCKFORD.blink, cell);
       else if (!this.game.idle.blink && this.game.idle.tap)
-        this.sprite(BD.OBJECT.ROCKFORD.tap, cell);
+        this.sprite(BD.ENTITY.ROCKFORD.tap, cell);
       else if (this.game.idle.blink && this.game.idle.tap)
-        this.sprite(BD.OBJECT.ROCKFORD.blinktap, cell);
+        this.sprite(BD.ENTITY.ROCKFORD.blinktap, cell);
       else
-        this.sprite(BD.OBJECT.ROCKFORD.sprite, cell);
+        this.sprite(BD.ENTITY.ROCKFORD.sprite, cell);
     },
 
     description: function(msg) {
@@ -259,53 +259,53 @@ Boulderdash = function() {
 
   //-------------------------------------------------------------------------
 
-  var OBJECT = BD.OBJECT;
+  var ENTITY = BD.ENTITY;
  
-  for(var key in OBJECT) {
-    OBJECT[key].name = key;                 // give it a human friendly name
-    OBJECT[OBJECT[key].code] = OBJECT[key]; // and allow lookup by code
+  for(var key in ENTITY) {
+    ENTITY[key].name = key;                 // give it a human friendly name
+    ENTITY[ENTITY[key].code] = ENTITY[key]; // and allow lookup by code
   }
 
   var FIREFLIES = [];
-  FIREFLIES[DIR.LEFT]  = OBJECT.FIREFLY1;
-  FIREFLIES[DIR.UP]    = OBJECT.FIREFLY2;
-  FIREFLIES[DIR.RIGHT] = OBJECT.FIREFLY3;
-  FIREFLIES[DIR.DOWN]  = OBJECT.FIREFLY4;
+  FIREFLIES[DIR.LEFT]  = ENTITY.FIREFLY1;
+  FIREFLIES[DIR.UP]    = ENTITY.FIREFLY2;
+  FIREFLIES[DIR.RIGHT] = ENTITY.FIREFLY3;
+  FIREFLIES[DIR.DOWN]  = ENTITY.FIREFLY4;
 
   var BUTTERFLIES = [];
-  BUTTERFLIES[DIR.LEFT]  = OBJECT.BUTTERFLY1;
-  BUTTERFLIES[DIR.UP]    = OBJECT.BUTTERFLY2;
-  BUTTERFLIES[DIR.RIGHT] = OBJECT.BUTTERFLY3;
-  BUTTERFLIES[DIR.DOWN]  = OBJECT.BUTTERFLY4;
+  BUTTERFLIES[DIR.LEFT]  = ENTITY.BUTTERFLY1;
+  BUTTERFLIES[DIR.UP]    = ENTITY.BUTTERFLY2;
+  BUTTERFLIES[DIR.RIGHT] = ENTITY.BUTTERFLY3;
+  BUTTERFLIES[DIR.DOWN]  = ENTITY.BUTTERFLY4;
 
   var PREROCKFORDS = [
-    OBJECT.PREROCKFORD1,
-    OBJECT.PREROCKFORD2,
-    OBJECT.PREROCKFORD3,
-    OBJECT.PREROCKFORD4,
-    OBJECT.ROCKFORD
+    ENTITY.PREROCKFORD1,
+    ENTITY.PREROCKFORD2,
+    ENTITY.PREROCKFORD3,
+    ENTITY.PREROCKFORD4,
+    ENTITY.ROCKFORD
   ];
 
   var EXPLODETOSPACE = [
-    OBJECT.EXPLODETOSPACE0,
-    OBJECT.EXPLODETOSPACE1,
-    OBJECT.EXPLODETOSPACE2,
-    OBJECT.EXPLODETOSPACE3,
-    OBJECT.EXPLODETOSPACE4,
-    OBJECT.SPACE
+    ENTITY.EXPLODETOSPACE0,
+    ENTITY.EXPLODETOSPACE1,
+    ENTITY.EXPLODETOSPACE2,
+    ENTITY.EXPLODETOSPACE3,
+    ENTITY.EXPLODETOSPACE4,
+    ENTITY.SPACE
   ];
 
   var EXPLODETODIAMOND = [
-    OBJECT.EXPLODETODIAMOND0,
-    OBJECT.EXPLODETODIAMOND1,
-    OBJECT.EXPLODETODIAMOND2,
-    OBJECT.EXPLODETODIAMOND3,
-    OBJECT.EXPLODETODIAMOND4,
-    OBJECT.DIAMOND
+    ENTITY.EXPLODETODIAMOND0,
+    ENTITY.EXPLODETODIAMOND1,
+    ENTITY.EXPLODETODIAMOND2,
+    ENTITY.EXPLODETODIAMOND3,
+    ENTITY.EXPLODETODIAMOND4,
+    ENTITY.DIAMOND
   ];
 
-  function isFirefly(o)   { return (OBJECT.FIREFLY1.code     <= o.code) && (o.code <= OBJECT.FIREFLY4.code);   }
-  function isButterfly(o) { return (OBJECT.BUTTERFLY1.code   <= o.code) && (o.code <= OBJECT.BUTTERFLY4.code); }
+  function isFirefly(o)   { return (ENTITY.FIREFLY1.code     <= o.code) && (o.code <= ENTITY.FIREFLY4.code);   }
+  function isButterfly(o) { return (ENTITY.BUTTERFLY1.code   <= o.code) && (o.code <= ENTITY.BUTTERFLY4.code); }
 
   //----------------------------------------------------------------------------
 
@@ -359,7 +359,7 @@ Boulderdash = function() {
       for(y = 0 ; y < this.height ; ++y) {
         for(x = 0 ; x < this.width ; ++x) {
           this.cells[x]    = this.cells[x] || [];
-          this.cells[x][y] = { p: new Point(x,y), frame: 0, object: OBJECT[this.cave.map[x][y]] };
+          this.cells[x][y] = { p: new Point(x,y), frame: 0, object: ENTITY[this.cave.map[x][y]] };
         }
       }
       this.publish('level', this.cave);
@@ -370,24 +370,24 @@ Boulderdash = function() {
 
     get:          function(p,dir)   {     return this.cells[p.x + (DIRX[dir] || 0)][p.y + (DIRY[dir] || 0)].object; },
     set:          function(p,o,dir) { var cell = this.cells[p.x + (DIRX[dir] || 0)][p.y + (DIRY[dir] || 0)]; cell.object = o; cell.frame = this.frame; this.publish('cell', cell) },
-    clear:        function(p,dir)   { this.set(p,OBJECT.SPACE,dir); },
+    clear:        function(p,dir)   { this.set(p,ENTITY.SPACE,dir); },
     move:         function(p,dir,o) { this.clear(p); this.set(p,o,dir); },
-    isempty:      function(p,dir)   { var o = this.get(p,dir); return OBJECT.SPACE     === o; },
-    isdirt:       function(p,dir)   { var o = this.get(p,dir); return OBJECT.DIRT      === o; },
-    isboulder:    function(p,dir)   { var o = this.get(p,dir); return OBJECT.BOULDER   === o; },
-    isrockford:   function(p,dir)   { var o = this.get(p,dir); return OBJECT.ROCKFORD  === o; },
-    isdiamond:    function(p,dir)   { var o = this.get(p,dir); return OBJECT.DIAMOND   === o; },
-    isamoeba:     function(p,dir)   { var o = this.get(p,dir); return OBJECT.AMOEBA    === o; },
-    ismagic:      function(p,dir)   { var o = this.get(p,dir); return OBJECT.MAGICWALL === o; },
-    isoutbox:     function(p,dir)   { var o = this.get(p,dir); return OBJECT.OUTBOX    === o; },
+    isempty:      function(p,dir)   { var o = this.get(p,dir); return ENTITY.SPACE     === o; },
+    isdirt:       function(p,dir)   { var o = this.get(p,dir); return ENTITY.DIRT      === o; },
+    isboulder:    function(p,dir)   { var o = this.get(p,dir); return ENTITY.BOULDER   === o; },
+    isrockford:   function(p,dir)   { var o = this.get(p,dir); return ENTITY.ROCKFORD  === o; },
+    isdiamond:    function(p,dir)   { var o = this.get(p,dir); return ENTITY.DIAMOND   === o; },
+    isamoeba:     function(p,dir)   { var o = this.get(p,dir); return ENTITY.AMOEBA    === o; },
+    ismagic:      function(p,dir)   { var o = this.get(p,dir); return ENTITY.MAGICWALL === o; },
+    isoutbox:     function(p,dir)   { var o = this.get(p,dir); return ENTITY.OUTBOX    === o; },
     isfirefly:    function(p,dir)   { var o = this.get(p,dir); return isFirefly(o);           },
     isbutterfly:  function(p,dir)   { var o = this.get(p,dir); return isButterfly(o);         },
     isexplodable: function(p,dir)   { var o = this.get(p,dir); return o.explodable;           },
     isconsumable: function(p,dir)   { var o = this.get(p,dir); return o.consumable;           },
     isrounded:    function(p,dir)   { var o = this.get(p,dir); return o.rounded;              },
 
-    isfallingdiamond: function(p,dir) { var o = this.get(p,dir); return OBJECT.DIAMONDFALLING === o; },
-    isfallingboulder: function(p,dir) { var o = this.get(p,dir); return OBJECT.BOULDERFALLING === o; },
+    isfallingdiamond: function(p,dir) { var o = this.get(p,dir); return ENTITY.DIAMONDFALLING === o; },
+    isfallingboulder: function(p,dir) { var o = this.get(p,dir); return ENTITY.BOULDERFALLING === o; },
 
     eachCell: function(fn, thisArg) {
       for(var y = 0 ; y < this.height ; y++) {
@@ -402,35 +402,35 @@ Boulderdash = function() {
       this.eachCell(function(cell) {
         if (cell.frame < this.frame) {
           switch(cell.object) {
-            case OBJECT.PREROCKFORD1:      this.updatePreRockford(cell.p, 1);       break;
-            case OBJECT.PREROCKFORD2:      this.updatePreRockford(cell.p, 2);       break;
-            case OBJECT.PREROCKFORD3:      this.updatePreRockford(cell.p, 3);       break;
-            case OBJECT.PREROCKFORD4:      this.updatePreRockford(cell.p, 4);       break;
-            case OBJECT.ROCKFORD:          this.updateRockford(cell.p, moving.dir); break;
-            case OBJECT.BOULDER:           this.updateBoulder(cell.p);              break;
-            case OBJECT.BOULDERFALLING:    this.updateBoulderFalling(cell.p);       break;
-            case OBJECT.DIAMOND:           this.updateDiamond(cell.p);              break;
-            case OBJECT.DIAMONDFALLING:    this.updateDiamondFalling(cell.p);       break;
-            case OBJECT.FIREFLY1:          this.updateFirefly(cell.p, DIR.LEFT);    break;
-            case OBJECT.FIREFLY2:          this.updateFirefly(cell.p, DIR.UP);      break;
-            case OBJECT.FIREFLY3:          this.updateFirefly(cell.p, DIR.RIGHT);   break;
-            case OBJECT.FIREFLY4:          this.updateFirefly(cell.p, DIR.DOWN);    break;
-            case OBJECT.BUTTERFLY1:        this.updateButterfly(cell.p, DIR.LEFT);  break;
-            case OBJECT.BUTTERFLY2:        this.updateButterfly(cell.p, DIR.UP);    break;
-            case OBJECT.BUTTERFLY3:        this.updateButterfly(cell.p, DIR.RIGHT); break;
-            case OBJECT.BUTTERFLY4:        this.updateButterfly(cell.p, DIR.DOWN);  break;
-            case OBJECT.EXPLODETOSPACE0:   this.updateExplodeToSpace(cell.p, 0);    break;
-            case OBJECT.EXPLODETOSPACE1:   this.updateExplodeToSpace(cell.p, 1);    break;
-            case OBJECT.EXPLODETOSPACE2:   this.updateExplodeToSpace(cell.p, 2);    break;
-            case OBJECT.EXPLODETOSPACE3:   this.updateExplodeToSpace(cell.p, 3);    break;
-            case OBJECT.EXPLODETOSPACE4:   this.updateExplodeToSpace(cell.p, 4);    break;
-            case OBJECT.EXPLODETODIAMOND0: this.updateExplodeToDiamond(cell.p, 0);  break;
-            case OBJECT.EXPLODETODIAMOND1: this.updateExplodeToDiamond(cell.p, 1);  break;
-            case OBJECT.EXPLODETODIAMOND2: this.updateExplodeToDiamond(cell.p, 2);  break;
-            case OBJECT.EXPLODETODIAMOND3: this.updateExplodeToDiamond(cell.p, 3);  break;
-            case OBJECT.EXPLODETODIAMOND4: this.updateExplodeToDiamond(cell.p, 4);  break;
-            case OBJECT.AMOEBA:            this.updateAmoeba(cell.p);               break;
-            case OBJECT.PREOUTBOX:         this.updatePreOutbox(cell.p);            break;
+            case ENTITY.PREROCKFORD1:      this.updatePreRockford(cell.p, 1);       break;
+            case ENTITY.PREROCKFORD2:      this.updatePreRockford(cell.p, 2);       break;
+            case ENTITY.PREROCKFORD3:      this.updatePreRockford(cell.p, 3);       break;
+            case ENTITY.PREROCKFORD4:      this.updatePreRockford(cell.p, 4);       break;
+            case ENTITY.ROCKFORD:          this.updateRockford(cell.p, moving.dir); break;
+            case ENTITY.BOULDER:           this.updateBoulder(cell.p);              break;
+            case ENTITY.BOULDERFALLING:    this.updateBoulderFalling(cell.p);       break;
+            case ENTITY.DIAMOND:           this.updateDiamond(cell.p);              break;
+            case ENTITY.DIAMONDFALLING:    this.updateDiamondFalling(cell.p);       break;
+            case ENTITY.FIREFLY1:          this.updateFirefly(cell.p, DIR.LEFT);    break;
+            case ENTITY.FIREFLY2:          this.updateFirefly(cell.p, DIR.UP);      break;
+            case ENTITY.FIREFLY3:          this.updateFirefly(cell.p, DIR.RIGHT);   break;
+            case ENTITY.FIREFLY4:          this.updateFirefly(cell.p, DIR.DOWN);    break;
+            case ENTITY.BUTTERFLY1:        this.updateButterfly(cell.p, DIR.LEFT);  break;
+            case ENTITY.BUTTERFLY2:        this.updateButterfly(cell.p, DIR.UP);    break;
+            case ENTITY.BUTTERFLY3:        this.updateButterfly(cell.p, DIR.RIGHT); break;
+            case ENTITY.BUTTERFLY4:        this.updateButterfly(cell.p, DIR.DOWN);  break;
+            case ENTITY.EXPLODETOSPACE0:   this.updateExplodeToSpace(cell.p, 0);    break;
+            case ENTITY.EXPLODETOSPACE1:   this.updateExplodeToSpace(cell.p, 1);    break;
+            case ENTITY.EXPLODETOSPACE2:   this.updateExplodeToSpace(cell.p, 2);    break;
+            case ENTITY.EXPLODETOSPACE3:   this.updateExplodeToSpace(cell.p, 3);    break;
+            case ENTITY.EXPLODETOSPACE4:   this.updateExplodeToSpace(cell.p, 4);    break;
+            case ENTITY.EXPLODETODIAMOND0: this.updateExplodeToDiamond(cell.p, 0);  break;
+            case ENTITY.EXPLODETODIAMOND1: this.updateExplodeToDiamond(cell.p, 1);  break;
+            case ENTITY.EXPLODETODIAMOND2: this.updateExplodeToDiamond(cell.p, 2);  break;
+            case ENTITY.EXPLODETODIAMOND3: this.updateExplodeToDiamond(cell.p, 3);  break;
+            case ENTITY.EXPLODETODIAMOND4: this.updateExplodeToDiamond(cell.p, 4);  break;
+            case ENTITY.AMOEBA:            this.updateAmoeba(cell.p);               break;
+            case ENTITY.PREOUTBOX:         this.updatePreOutbox(cell.p);            break;
           }
         }
       });
@@ -494,9 +494,9 @@ Boulderdash = function() {
     endFrame: function() {
       if (!this.amoeba.dead) {
         if (this.amoeba.enclosed)
-          this.amoeba.dead = OBJECT.DIAMOND;
+          this.amoeba.dead = ENTITY.DIAMOND;
         else if (this.amoeba.size > this.amoeba.max)
-          this.amoeba.dead = OBJECT.BOULDER;
+          this.amoeba.dead = ENTITY.BOULDER;
         else if (this.amoeba.slow > 0)
           this.amoeba.slow--;
       }
@@ -517,7 +517,7 @@ Boulderdash = function() {
 
     updatePreOutbox: function(p) {
       if (this.diamonds.collected >= this.diamonds.needed)
-        this.set(p, OBJECT.OUTBOX);
+        this.set(p, ENTITY.OUTBOX);
     },
 
     updateRockford: function(p, dir) {
@@ -541,67 +541,67 @@ Boulderdash = function() {
         }
       }
       else if (this.isempty(p, dir) || this.isdirt(p, dir)) {
-        this.move(p, dir, OBJECT.ROCKFORD);
+        this.move(p, dir, ENTITY.ROCKFORD);
       }
       else if (this.isdiamond(p, dir)) {
-        this.move(p, dir, OBJECT.ROCKFORD);
+        this.move(p, dir, ENTITY.ROCKFORD);
         this.collectDiamond();
       }
       else if (horizontal(dir) && this.isboulder(p, dir)) {
         this.push(p, dir);
       }
       else if (this.isoutbox(p, dir)) {
-        this.move(p, dir, OBJECT.ROCKFORD);
+        this.move(p, dir, ENTITY.ROCKFORD);
         this.winLevel();
       }
     },
 
     updateBoulder: function(p) {
       if (this.isempty(p, DIR.DOWN))
-        this.set(p, OBJECT.BOULDERFALLING);
+        this.set(p, ENTITY.BOULDERFALLING);
       else if (this.isrounded(p, DIR.DOWN) && this.isempty(p, DIR.LEFT) && this.isempty(p, DIR.DOWNLEFT))
-        this.move(p, DIR.LEFT, OBJECT.BOULDERFALLING);
+        this.move(p, DIR.LEFT, ENTITY.BOULDERFALLING);
       else if (this.isrounded(p, DIR.DOWN) && this.isempty(p, DIR.RIGHT) && this.isempty(p, DIR.DOWNRIGHT))
-        this.move(p, DIR.RIGHT, OBJECT.BOULDERFALLING);
+        this.move(p, DIR.RIGHT, ENTITY.BOULDERFALLING);
     },
 
     updateBoulderFalling: function(p) {
       if (this.isempty(p, DIR.DOWN))
-        this.move(p, DIR.DOWN, OBJECT.BOULDERFALLING);
+        this.move(p, DIR.DOWN, ENTITY.BOULDERFALLING);
       else if (this.isexplodable(p, DIR.DOWN))
         this.explode(p, DIR.DOWN);
       else if (this.ismagic(p, DIR.DOWN))
-        this.domagic(p, OBJECT.DIAMOND);
+        this.domagic(p, ENTITY.DIAMOND);
       else if (this.isrounded(p, DIR.DOWN) && this.isempty(p, DIR.LEFT) && this.isempty(p, DIR.DOWNLEFT))
-        this.move(p, DIR.LEFT, OBJECT.BOULDERFALLING);
+        this.move(p, DIR.LEFT, ENTITY.BOULDERFALLING);
       else if (this.isrounded(p, DIR.DOWN) && this.isempty(p, DIR.RIGHT) && this.isempty(p, DIR.DOWNRIGHT))
-        this.move(p, DIR.RIGHT, OBJECT.BOULDERFALLING);
+        this.move(p, DIR.RIGHT, ENTITY.BOULDERFALLING);
       else
-        this.set(p, OBJECT.BOULDER);
+        this.set(p, ENTITY.BOULDER);
     },
 
     updateDiamond: function(p) {
       if (this.isempty(p, DIR.DOWN))
-        this.set(p, OBJECT.DIAMONDFALLING);
+        this.set(p, ENTITY.DIAMONDFALLING);
       else if (this.isrounded(p, DIR.DOWN) && this.isempty(p, DIR.LEFT) && this.isempty(p, DIR.DOWNLEFT))
-        this.move(p, DIR.LEFT, OBJECT.DIAMONDFALLING);
+        this.move(p, DIR.LEFT, ENTITY.DIAMONDFALLING);
       else if (this.isrounded(p, DIR.DOWN) && this.isempty(p, DIR.RIGHT) && this.isempty(p, DIR.DOWNRIGHT))
-        this.move(p, DIR.RIGHT, OBJECT.DIAMONDFALLING);
+        this.move(p, DIR.RIGHT, ENTITY.DIAMONDFALLING);
     },
 
     updateDiamondFalling: function(p) {
       if (this.isempty(p, DIR.DOWN))
-        this.move(p, DIR.DOWN, OBJECT.DIAMONDFALLING);
+        this.move(p, DIR.DOWN, ENTITY.DIAMONDFALLING);
       else if (this.isexplodable(p, DIR.DOWN))
         this.explode(p, DIR.DOWN);
       else if (this.ismagic(p, DIR.DOWN))
-        this.domagic(p, OBJECT.BOULDER);
+        this.domagic(p, ENTITY.BOULDER);
       else if (this.isrounded(p, DIR.DOWN) && this.isempty(p, DIR.LEFT) && this.isempty(p, DIR.DOWNLEFT))
-        this.move(p, DIR.LEFT, OBJECT.DIAMONDFALLING);
+        this.move(p, DIR.LEFT, ENTITY.DIAMONDFALLING);
       else if (this.isrounded(p, DIR.DOWN) && this.isempty(p, DIR.RIGHT) && this.isempty(p, DIR.DOWNRIGHT))
-        this.move(p, DIR.RIGHT, OBJECT.DIAMONDFALLING);
+        this.move(p, DIR.RIGHT, ENTITY.DIAMONDFALLING);
       else
-        this.set(p, OBJECT.DIAMOND);
+        this.set(p, ENTITY.DIAMOND);
     },
 
     updateFirefly: function(p, dir) {
@@ -654,14 +654,14 @@ Boulderdash = function() {
           var grow = this.amoeba.slow ? (randomInt(1, 128) < 4) : (randomInt(1, 4) == 1);
           var dir  = randomChoice([DIR.UP, DIR.DOWN, DIR.LEFT, DIR.RIGHT]);
           if (grow && (this.isdirt(p, dir) || this.isempty(p, dir)))
-            this.set(p, OBJECT.AMOEBA, dir);
+            this.set(p, ENTITY.AMOEBA, dir);
         }
       }
     },
 
     explode: function(p, dir) {
       var p2        = new Point(p.x, p.y, dir);
-      var explosion = (this.isbutterfly(p2) ? OBJECT.EXPLODETODIAMOND0 : OBJECT.EXPLODETOSPACE0);
+      var explosion = (this.isbutterfly(p2) ? ENTITY.EXPLODETODIAMOND0 : ENTITY.EXPLODETOSPACE0);
       this.set(p2, explosion);
       for(dir = 0 ; dir < 8 ; ++dir) { // for each of the 8 directions
         if (this.isexplodable(p2, dir))
@@ -675,9 +675,9 @@ Boulderdash = function() {
       p2 = new Point(p.x, p.y, dir);
       if (this.isempty(p2, dir)) {
         if (randomInt(1,8) == 1) {
-          this.move(p2, dir, OBJECT.BOULDER);
+          this.move(p2, dir, ENTITY.BOULDER);
           if (!moving.grab)
-            this.move(p, dir, OBJECT.ROCKFORD);
+            this.move(p, dir, ENTITY.ROCKFORD);
         }
       }
     },
