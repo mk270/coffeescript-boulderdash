@@ -80,11 +80,56 @@ BD.extend({
   rotateLeft: function(dir)  { return (dir-2) + (dir < 2 ? 8 : 0); },
   rotateRight: function(dir) { return (dir+2) - (dir > 5 ? 8 : 0); },
   horizontal: function(dir)  { return (dir === BD.DIR.LEFT) || (dir === BD.DIR.RIGHT); },
-  vertical: function(dir)    { return (dir === BD.DIR.UP)   || (dir === BD.DIR.DOWN);  }
-
-
+  vertical: function(dir)    { return (dir === BD.DIR.UP)   || (dir === BD.DIR.DOWN);  },
+  Point: function(x, y, dir) {
+    this.x = x + (BD.DIRX[dir] || 0);
+    this.y = y + (BD.DIRY[dir] || 0);
+  },
+  isFirefly: function(o)   { return (BD.Entity.FIREFLY1.code     <= o.code) && (o.code <= BD.Entity.FIREFLY4.code);   },
+  isButterfly: function(o) { return (BD.Entity.BUTTERFLY1.code   <= o.code) && (o.code <= BD.Entity.BUTTERFLY4.code); }
 
 });
+
+
+  var FIREFLIES = [];
+  FIREFLIES[BD.DIR.LEFT]  = BD.Entity.FIREFLY1;
+  FIREFLIES[BD.DIR.UP]    = BD.Entity.FIREFLY2;
+  FIREFLIES[BD.DIR.RIGHT] = BD.Entity.FIREFLY3;
+  FIREFLIES[BD.DIR.DOWN]  = BD.Entity.FIREFLY4;
+
+  var BUTTERFLIES = [];
+  BUTTERFLIES[BD.DIR.LEFT]  = BD.Entity.BUTTERFLY1;
+  BUTTERFLIES[BD.DIR.UP]    = BD.Entity.BUTTERFLY2;
+  BUTTERFLIES[BD.DIR.RIGHT] = BD.Entity.BUTTERFLY3;
+  BUTTERFLIES[BD.DIR.DOWN]  = BD.Entity.BUTTERFLY4;
+
+  var PREROCKFORDS = [
+    BD.Entity.PREROCKFORD1,
+    BD.Entity.PREROCKFORD2,
+    BD.Entity.PREROCKFORD3,
+    BD.Entity.PREROCKFORD4,
+    BD.Entity.ROCKFORD
+  ];
+
+  var EXPLODETOSPACE = [
+    BD.Entity.EXPLODETOSPACE0,
+    BD.Entity.EXPLODETOSPACE1,
+    BD.Entity.EXPLODETOSPACE2,
+    BD.Entity.EXPLODETOSPACE3,
+    BD.Entity.EXPLODETOSPACE4,
+    BD.Entity.SPACE
+  ];
+
+  var EXPLODETODIAMOND = [
+    BD.Entity.EXPLODETODIAMOND0,
+    BD.Entity.EXPLODETODIAMOND1,
+    BD.Entity.EXPLODETODIAMOND2,
+    BD.Entity.EXPLODETODIAMOND3,
+    BD.Entity.EXPLODETODIAMOND4,
+    BD.Entity.DIAMOND
+  ];
+
+
 
 
 BD.Render = function(game, moving) {
@@ -95,7 +140,7 @@ BD.Render = function(game, moving) {
     game.subscribe('timer', this.invalidateScore, this);
     game.subscribe('flash', this.invalidateCave,  this);
     game.subscribe('cell',  this.invalidateCell,  this);
-  }
+};
 
 BD.Render.prototype = {
 
@@ -235,96 +280,16 @@ BD.Render.prototype = {
       this.invalidateCave();
     }
 
-  }
+};
 
-
-Boulderdash = function() {
-
-  //=========================================================================
-  // GENERAL purpose constants and helper methods
-  //=========================================================================
-
-  var KEY = BD.KEY;
-
-  var Dom = BD.Dom;
-
-  var DIR  = BD.DIR;
-  var DIRX = BD.DIRX;
-  var DIRY = BD.DIRY;
-
-  function rotateLeft(dir)  { return (dir-2) + (dir < 2 ? 8 : 0); };
-  function rotateRight(dir) { return (dir+2) - (dir > 5 ? 8 : 0); };
-  function horizontal(dir)  { return (dir === DIR.LEFT) || (dir === DIR.RIGHT); };
-  function vertical(dir)    { return (dir === DIR.UP)   || (dir === DIR.DOWN);  };
-
-  //-------------------------------------------------------------------------
-
-  var Entity = BD.Entity;
- 
-  for(var key in Entity) {
-    Entity[key].name = key;                 // give it a human friendly name
-    Entity[Entity[key].code] = Entity[key]; // and allow lookup by code
-  }
-
-  var FIREFLIES = [];
-  FIREFLIES[DIR.LEFT]  = Entity.FIREFLY1;
-  FIREFLIES[DIR.UP]    = Entity.FIREFLY2;
-  FIREFLIES[DIR.RIGHT] = Entity.FIREFLY3;
-  FIREFLIES[DIR.DOWN]  = Entity.FIREFLY4;
-
-  var BUTTERFLIES = [];
-  BUTTERFLIES[DIR.LEFT]  = Entity.BUTTERFLY1;
-  BUTTERFLIES[DIR.UP]    = Entity.BUTTERFLY2;
-  BUTTERFLIES[DIR.RIGHT] = Entity.BUTTERFLY3;
-  BUTTERFLIES[DIR.DOWN]  = Entity.BUTTERFLY4;
-
-  var PREROCKFORDS = [
-    Entity.PREROCKFORD1,
-    Entity.PREROCKFORD2,
-    Entity.PREROCKFORD3,
-    Entity.PREROCKFORD4,
-    Entity.ROCKFORD
-  ];
-
-  var EXPLODETOSPACE = [
-    Entity.EXPLODETOSPACE0,
-    Entity.EXPLODETOSPACE1,
-    Entity.EXPLODETOSPACE2,
-    Entity.EXPLODETOSPACE3,
-    Entity.EXPLODETOSPACE4,
-    Entity.SPACE
-  ];
-
-  var EXPLODETODIAMOND = [
-    Entity.EXPLODETODIAMOND0,
-    Entity.EXPLODETODIAMOND1,
-    Entity.EXPLODETODIAMOND2,
-    Entity.EXPLODETODIAMOND3,
-    Entity.EXPLODETODIAMOND4,
-    Entity.DIAMOND
-  ];
-
-  function isFirefly(o)   { return (Entity.FIREFLY1.code     <= o.code) && (o.code <= Entity.FIREFLY4.code);   }
-  function isButterfly(o) { return (Entity.BUTTERFLY1.code   <= o.code) && (o.code <= Entity.BUTTERFLY4.code); }
-
-  //----------------------------------------------------------------------------
-
-  var Point = function(x, y, dir) {
-    this.x = x + (DIRX[dir] || 0);
-    this.y = y + (DIRY[dir] || 0);
-  }
-
-  //=========================================================================
-  // GAME LOGIC
-  //=========================================================================
-
-  var Game = function(options) {
+BD.Game = function(moving, options) {
     this.options = options || {};
     this.storage = window.localStorage || {};
     this.score   = 0;
-  };
+  this.moving = moving;
+};
 
-  Game.prototype = {
+BD.Game.prototype = {
 
     reset: function(n) {
       n = Math.min(CAVES.length-1, Math.max(0, (typeof n === 'number' ? n : this.storage.level || 0)));
@@ -359,7 +324,9 @@ Boulderdash = function() {
       for(y = 0 ; y < this.height ; ++y) {
         for(x = 0 ; x < this.width ; ++x) {
           this.cells[x]    = this.cells[x] || [];
-          this.cells[x][y] = { p: new Point(x,y), frame: 0, object: Entity[this.cave.map[x][y]] };
+          this.cells[x][y] = { p: new BD.Point(x,y), 
+							   frame: 0, 
+							   object: BD.Entity[this.cave.map[x][y]] };
         }
       }
       this.publish('level', this.cave);
@@ -368,26 +335,26 @@ Boulderdash = function() {
     prev: function() { if (this.index > 0)              this.reset(this.index-1); },
     next: function() { if (this.index < CAVES.length-1) this.reset(this.index+1); },
 
-    get:          function(p,dir)   {     return this.cells[p.x + (DIRX[dir] || 0)][p.y + (DIRY[dir] || 0)].object; },
-    set:          function(p,o,dir) { var cell = this.cells[p.x + (DIRX[dir] || 0)][p.y + (DIRY[dir] || 0)]; cell.object = o; cell.frame = this.frame; this.publish('cell', cell) },
-    clear:        function(p,dir)   { this.set(p,Entity.SPACE,dir); },
+    get:          function(p,dir)   {     return this.cells[p.x + (BD.DIRX[dir] || 0)][p.y + (BD.DIRY[dir] || 0)].object; },
+    set:          function(p,o,dir) { var cell = this.cells[p.x + (BD.DIRX[dir] || 0)][p.y + (BD.DIRY[dir] || 0)]; cell.object = o; cell.frame = this.frame; this.publish('cell', cell) },
+    clear:        function(p,dir)   { this.set(p,BD.Entity.SPACE,dir); },
     move:         function(p,dir,o) { this.clear(p); this.set(p,o,dir); },
-    isempty:      function(p,dir)   { var o = this.get(p,dir); return Entity.SPACE     === o; },
-    isdirt:       function(p,dir)   { var o = this.get(p,dir); return Entity.DIRT      === o; },
-    isboulder:    function(p,dir)   { var o = this.get(p,dir); return Entity.BOULDER   === o; },
-    isrockford:   function(p,dir)   { var o = this.get(p,dir); return Entity.ROCKFORD  === o; },
-    isdiamond:    function(p,dir)   { var o = this.get(p,dir); return Entity.DIAMOND   === o; },
-    isamoeba:     function(p,dir)   { var o = this.get(p,dir); return Entity.AMOEBA    === o; },
-    ismagic:      function(p,dir)   { var o = this.get(p,dir); return Entity.MAGICWALL === o; },
-    isoutbox:     function(p,dir)   { var o = this.get(p,dir); return Entity.OUTBOX    === o; },
-    isfirefly:    function(p,dir)   { var o = this.get(p,dir); return isFirefly(o);           },
-    isbutterfly:  function(p,dir)   { var o = this.get(p,dir); return isButterfly(o);         },
+    isempty:      function(p,dir)   { var o = this.get(p,dir); return BD.Entity.SPACE     === o; },
+    isdirt:       function(p,dir)   { var o = this.get(p,dir); return BD.Entity.DIRT      === o; },
+    isboulder:    function(p,dir)   { var o = this.get(p,dir); return BD.Entity.BOULDER   === o; },
+    isrockford:   function(p,dir)   { var o = this.get(p,dir); return BD.Entity.ROCKFORD  === o; },
+    isdiamond:    function(p,dir)   { var o = this.get(p,dir); return BD.Entity.DIAMOND   === o; },
+    isamoeba:     function(p,dir)   { var o = this.get(p,dir); return BD.Entity.AMOEBA    === o; },
+    ismagic:      function(p,dir)   { var o = this.get(p,dir); return BD.Entity.MAGICWALL === o; },
+    isoutbox:     function(p,dir)   { var o = this.get(p,dir); return BD.Entity.OUTBOX    === o; },
+    isfirefly:    function(p,dir)   { var o = this.get(p,dir); return BD.isFirefly(o);           },
+    isbutterfly:  function(p,dir)   { var o = this.get(p,dir); return BD.isButterfly(o);         },
     isexplodable: function(p,dir)   { var o = this.get(p,dir); return o.explodable;           },
     isconsumable: function(p,dir)   { var o = this.get(p,dir); return o.consumable;           },
     isrounded:    function(p,dir)   { var o = this.get(p,dir); return o.rounded;              },
 
-    isfallingdiamond: function(p,dir) { var o = this.get(p,dir); return Entity.DIAMONDFALLING === o; },
-    isfallingboulder: function(p,dir) { var o = this.get(p,dir); return Entity.BOULDERFALLING === o; },
+    isfallingdiamond: function(p,dir) { var o = this.get(p,dir); return BD.Entity.DIAMONDFALLING === o; },
+    isfallingboulder: function(p,dir) { var o = this.get(p,dir); return BD.Entity.BOULDERFALLING === o; },
 
     eachCell: function(fn, thisArg) {
       for(var y = 0 ; y < this.height ; y++) {
@@ -402,35 +369,35 @@ Boulderdash = function() {
       this.eachCell(function(cell) {
         if (cell.frame < this.frame) {
           switch(cell.object) {
-            case Entity.PREROCKFORD1:      this.updatePreRockford(cell.p, 1);       break;
-            case Entity.PREROCKFORD2:      this.updatePreRockford(cell.p, 2);       break;
-            case Entity.PREROCKFORD3:      this.updatePreRockford(cell.p, 3);       break;
-            case Entity.PREROCKFORD4:      this.updatePreRockford(cell.p, 4);       break;
-            case Entity.ROCKFORD:          this.updateRockford(cell.p, moving.dir); break;
-            case Entity.BOULDER:           this.updateBoulder(cell.p);              break;
-            case Entity.BOULDERFALLING:    this.updateBoulderFalling(cell.p);       break;
-            case Entity.DIAMOND:           this.updateDiamond(cell.p);              break;
-            case Entity.DIAMONDFALLING:    this.updateDiamondFalling(cell.p);       break;
-            case Entity.FIREFLY1:          this.updateFirefly(cell.p, DIR.LEFT);    break;
-            case Entity.FIREFLY2:          this.updateFirefly(cell.p, DIR.UP);      break;
-            case Entity.FIREFLY3:          this.updateFirefly(cell.p, DIR.RIGHT);   break;
-            case Entity.FIREFLY4:          this.updateFirefly(cell.p, DIR.DOWN);    break;
-            case Entity.BUTTERFLY1:        this.updateButterfly(cell.p, DIR.LEFT);  break;
-            case Entity.BUTTERFLY2:        this.updateButterfly(cell.p, DIR.UP);    break;
-            case Entity.BUTTERFLY3:        this.updateButterfly(cell.p, DIR.RIGHT); break;
-            case Entity.BUTTERFLY4:        this.updateButterfly(cell.p, DIR.DOWN);  break;
-            case Entity.EXPLODETOSPACE0:   this.updateExplodeToSpace(cell.p, 0);    break;
-            case Entity.EXPLODETOSPACE1:   this.updateExplodeToSpace(cell.p, 1);    break;
-            case Entity.EXPLODETOSPACE2:   this.updateExplodeToSpace(cell.p, 2);    break;
-            case Entity.EXPLODETOSPACE3:   this.updateExplodeToSpace(cell.p, 3);    break;
-            case Entity.EXPLODETOSPACE4:   this.updateExplodeToSpace(cell.p, 4);    break;
-            case Entity.EXPLODETODIAMOND0: this.updateExplodeToDiamond(cell.p, 0);  break;
-            case Entity.EXPLODETODIAMOND1: this.updateExplodeToDiamond(cell.p, 1);  break;
-            case Entity.EXPLODETODIAMOND2: this.updateExplodeToDiamond(cell.p, 2);  break;
-            case Entity.EXPLODETODIAMOND3: this.updateExplodeToDiamond(cell.p, 3);  break;
-            case Entity.EXPLODETODIAMOND4: this.updateExplodeToDiamond(cell.p, 4);  break;
-            case Entity.AMOEBA:            this.updateAmoeba(cell.p);               break;
-            case Entity.PREOUTBOX:         this.updatePreOutbox(cell.p);            break;
+            case BD.Entity.PREROCKFORD1:      this.updatePreRockford(cell.p, 1);       break;
+            case BD.Entity.PREROCKFORD2:      this.updatePreRockford(cell.p, 2);       break;
+            case BD.Entity.PREROCKFORD3:      this.updatePreRockford(cell.p, 3);       break;
+            case BD.Entity.PREROCKFORD4:      this.updatePreRockford(cell.p, 4);       break;
+            case BD.Entity.ROCKFORD:          this.updateRockford(cell.p, this.moving.dir); break;
+            case BD.Entity.BOULDER:           this.updateBoulder(cell.p);              break;
+            case BD.Entity.BOULDERFALLING:    this.updateBoulderFalling(cell.p);       break;
+            case BD.Entity.DIAMOND:           this.updateDiamond(cell.p);              break;
+            case BD.Entity.DIAMONDFALLING:    this.updateDiamondFalling(cell.p);       break;
+            case BD.Entity.FIREFLY1:          this.updateFirefly(cell.p, BD.DIR.LEFT);    break;
+            case BD.Entity.FIREFLY2:          this.updateFirefly(cell.p, BD.DIR.UP);      break;
+            case BD.Entity.FIREFLY3:          this.updateFirefly(cell.p, BD.DIR.RIGHT);   break;
+            case BD.Entity.FIREFLY4:          this.updateFirefly(cell.p, BD.DIR.DOWN);    break;
+            case BD.Entity.BUTTERFLY1:        this.updateButterfly(cell.p, BD.DIR.LEFT);  break;
+            case BD.Entity.BUTTERFLY2:        this.updateButterfly(cell.p, BD.DIR.UP);    break;
+            case BD.Entity.BUTTERFLY3:        this.updateButterfly(cell.p, BD.DIR.RIGHT); break;
+            case BD.Entity.BUTTERFLY4:        this.updateButterfly(cell.p, BD.DIR.DOWN);  break;
+            case BD.Entity.EXPLODETOSPACE0:   this.updateExplodeToSpace(cell.p, 0);    break;
+            case BD.Entity.EXPLODETOSPACE1:   this.updateExplodeToSpace(cell.p, 1);    break;
+            case BD.Entity.EXPLODETOSPACE2:   this.updateExplodeToSpace(cell.p, 2);    break;
+            case BD.Entity.EXPLODETOSPACE3:   this.updateExplodeToSpace(cell.p, 3);    break;
+            case BD.Entity.EXPLODETOSPACE4:   this.updateExplodeToSpace(cell.p, 4);    break;
+            case BD.Entity.EXPLODETODIAMOND0: this.updateExplodeToDiamond(cell.p, 0);  break;
+            case BD.Entity.EXPLODETODIAMOND1: this.updateExplodeToDiamond(cell.p, 1);  break;
+            case BD.Entity.EXPLODETODIAMOND2: this.updateExplodeToDiamond(cell.p, 2);  break;
+            case BD.Entity.EXPLODETODIAMOND3: this.updateExplodeToDiamond(cell.p, 3);  break;
+            case BD.Entity.EXPLODETODIAMOND4: this.updateExplodeToDiamond(cell.p, 4);  break;
+            case BD.Entity.AMOEBA:            this.updateAmoeba(cell.p);               break;
+            case BD.Entity.PREOUTBOX:         this.updatePreOutbox(cell.p);            break;
           }
         }
       });
@@ -485,7 +452,7 @@ Boulderdash = function() {
       this.frame++;
       this.amoeba.size     = 0;
       this.amoeba.enclosed = true;
-      this.idle = moving.dir ? {} : {
+      this.idle = this.moving.dir ? {} : {
         blink: (randomInt(1,4)==1)  ? !this.idle.blink : this.idle.blink,
         tap:   (randomInt(1,16)==1) ? !this.idle.tap   : this.idle.tap
       }
@@ -494,9 +461,9 @@ Boulderdash = function() {
     endFrame: function() {
       if (!this.amoeba.dead) {
         if (this.amoeba.enclosed)
-          this.amoeba.dead = Entity.DIAMOND;
+          this.amoeba.dead = BD.Entity.DIAMOND;
         else if (this.amoeba.size > this.amoeba.max)
-          this.amoeba.dead = Entity.BOULDER;
+          this.amoeba.dead = BD.Entity.BOULDER;
         else if (this.amoeba.slow > 0)
           this.amoeba.slow--;
       }
@@ -517,7 +484,7 @@ Boulderdash = function() {
 
     updatePreOutbox: function(p) {
       if (this.diamonds.collected >= this.diamonds.needed)
-        this.set(p, Entity.OUTBOX);
+        this.set(p, BD.Entity.OUTBOX);
     },
 
     updateRockford: function(p, dir) {
@@ -528,7 +495,7 @@ Boulderdash = function() {
       else if (this.timer === 0) {
         this.explode(p);
       }
-      else if (moving.grab) {
+      else if (this.moving.grab) {
         if (this.isdirt(p, dir)) {
           this.clear(p, dir);
         }
@@ -536,100 +503,100 @@ Boulderdash = function() {
           this.clear(p, dir);
           this.collectDiamond();
         }
-        else if (horizontal(dir) && this.isboulder(p, dir)) {
+        else if (BD.horizontal(dir) && this.isboulder(p, dir)) {
           this.push(p, dir);
         }
       }
       else if (this.isempty(p, dir) || this.isdirt(p, dir)) {
-        this.move(p, dir, Entity.ROCKFORD);
+        this.move(p, dir, BD.Entity.ROCKFORD);
       }
       else if (this.isdiamond(p, dir)) {
-        this.move(p, dir, Entity.ROCKFORD);
+        this.move(p, dir, BD.Entity.ROCKFORD);
         this.collectDiamond();
       }
-      else if (horizontal(dir) && this.isboulder(p, dir)) {
+      else if (BD.horizontal(dir) && this.isboulder(p, dir)) {
         this.push(p, dir);
       }
       else if (this.isoutbox(p, dir)) {
-        this.move(p, dir, Entity.ROCKFORD);
+        this.move(p, dir, BD.Entity.ROCKFORD);
         this.winLevel();
       }
     },
 
     updateBoulder: function(p) {
-      if (this.isempty(p, DIR.DOWN))
-        this.set(p, Entity.BOULDERFALLING);
-      else if (this.isrounded(p, DIR.DOWN) && this.isempty(p, DIR.LEFT) && this.isempty(p, DIR.DOWNLEFT))
-        this.move(p, DIR.LEFT, Entity.BOULDERFALLING);
-      else if (this.isrounded(p, DIR.DOWN) && this.isempty(p, DIR.RIGHT) && this.isempty(p, DIR.DOWNRIGHT))
-        this.move(p, DIR.RIGHT, Entity.BOULDERFALLING);
+      if (this.isempty(p, BD.DIR.DOWN))
+        this.set(p, BD.Entity.BOULDERFALLING);
+      else if (this.isrounded(p, BD.DIR.DOWN) && this.isempty(p, BD.DIR.LEFT) && this.isempty(p, BD.DIR.DOWNLEFT))
+        this.move(p, BD.DIR.LEFT, BD.Entity.BOULDERFALLING);
+      else if (this.isrounded(p, BD.DIR.DOWN) && this.isempty(p, BD.DIR.RIGHT) && this.isempty(p, BD.DIR.DOWNRIGHT))
+        this.move(p, BD.DIR.RIGHT, BD.Entity.BOULDERFALLING);
     },
 
     updateBoulderFalling: function(p) {
-      if (this.isempty(p, DIR.DOWN))
-        this.move(p, DIR.DOWN, Entity.BOULDERFALLING);
-      else if (this.isexplodable(p, DIR.DOWN))
-        this.explode(p, DIR.DOWN);
-      else if (this.ismagic(p, DIR.DOWN))
-        this.domagic(p, Entity.DIAMOND);
-      else if (this.isrounded(p, DIR.DOWN) && this.isempty(p, DIR.LEFT) && this.isempty(p, DIR.DOWNLEFT))
-        this.move(p, DIR.LEFT, Entity.BOULDERFALLING);
-      else if (this.isrounded(p, DIR.DOWN) && this.isempty(p, DIR.RIGHT) && this.isempty(p, DIR.DOWNRIGHT))
-        this.move(p, DIR.RIGHT, Entity.BOULDERFALLING);
+      if (this.isempty(p, BD.DIR.DOWN))
+        this.move(p, BD.DIR.DOWN, BD.Entity.BOULDERFALLING);
+      else if (this.isexplodable(p, BD.DIR.DOWN))
+        this.explode(p, BD.DIR.DOWN);
+      else if (this.ismagic(p, BD.DIR.DOWN))
+        this.domagic(p, BD.Entity.DIAMOND);
+      else if (this.isrounded(p, BD.DIR.DOWN) && this.isempty(p, BD.DIR.LEFT) && this.isempty(p, BD.DIR.DOWNLEFT))
+        this.move(p, BD.DIR.LEFT, BD.Entity.BOULDERFALLING);
+      else if (this.isrounded(p, BD.DIR.DOWN) && this.isempty(p, BD.DIR.RIGHT) && this.isempty(p, BD.DIR.DOWNRIGHT))
+        this.move(p, BD.DIR.RIGHT, BD.Entity.BOULDERFALLING);
       else
-        this.set(p, Entity.BOULDER);
+        this.set(p, BD.Entity.BOULDER);
     },
 
     updateDiamond: function(p) {
-      if (this.isempty(p, DIR.DOWN))
-        this.set(p, Entity.DIAMONDFALLING);
-      else if (this.isrounded(p, DIR.DOWN) && this.isempty(p, DIR.LEFT) && this.isempty(p, DIR.DOWNLEFT))
-        this.move(p, DIR.LEFT, Entity.DIAMONDFALLING);
-      else if (this.isrounded(p, DIR.DOWN) && this.isempty(p, DIR.RIGHT) && this.isempty(p, DIR.DOWNRIGHT))
-        this.move(p, DIR.RIGHT, Entity.DIAMONDFALLING);
+      if (this.isempty(p, BD.DIR.DOWN))
+        this.set(p, BD.Entity.DIAMONDFALLING);
+      else if (this.isrounded(p, BD.DIR.DOWN) && this.isempty(p, BD.DIR.LEFT) && this.isempty(p, BD.DIR.DOWNLEFT))
+        this.move(p, BD.DIR.LEFT, BD.Entity.DIAMONDFALLING);
+      else if (this.isrounded(p, BD.DIR.DOWN) && this.isempty(p, BD.DIR.RIGHT) && this.isempty(p, BD.DIR.DOWNRIGHT))
+        this.move(p, BD.DIR.RIGHT, BD.Entity.DIAMONDFALLING);
     },
 
     updateDiamondFalling: function(p) {
-      if (this.isempty(p, DIR.DOWN))
-        this.move(p, DIR.DOWN, Entity.DIAMONDFALLING);
-      else if (this.isexplodable(p, DIR.DOWN))
-        this.explode(p, DIR.DOWN);
-      else if (this.ismagic(p, DIR.DOWN))
-        this.domagic(p, Entity.BOULDER);
-      else if (this.isrounded(p, DIR.DOWN) && this.isempty(p, DIR.LEFT) && this.isempty(p, DIR.DOWNLEFT))
-        this.move(p, DIR.LEFT, Entity.DIAMONDFALLING);
-      else if (this.isrounded(p, DIR.DOWN) && this.isempty(p, DIR.RIGHT) && this.isempty(p, DIR.DOWNRIGHT))
-        this.move(p, DIR.RIGHT, Entity.DIAMONDFALLING);
+      if (this.isempty(p, BD.DIR.DOWN))
+        this.move(p, BD.DIR.DOWN, BD.Entity.DIAMONDFALLING);
+      else if (this.isexplodable(p, BD.DIR.DOWN))
+        this.explode(p, BD.DIR.DOWN);
+      else if (this.ismagic(p, BD.DIR.DOWN))
+        this.domagic(p, BD.Entity.BOULDER);
+      else if (this.isrounded(p, BD.DIR.DOWN) && this.isempty(p, BD.DIR.LEFT) && this.isempty(p, BD.DIR.DOWNLEFT))
+        this.move(p, BD.DIR.LEFT, BD.Entity.DIAMONDFALLING);
+      else if (this.isrounded(p, BD.DIR.DOWN) && this.isempty(p, BD.DIR.RIGHT) && this.isempty(p, BD.DIR.DOWNRIGHT))
+        this.move(p, BD.DIR.RIGHT, BD.Entity.DIAMONDFALLING);
       else
-        this.set(p, Entity.DIAMOND);
+        this.set(p, BD.Entity.DIAMOND);
     },
 
     updateFirefly: function(p, dir) {
-      var newdir = rotateLeft(dir);
-      if (this.isrockford(p, DIR.UP) || this.isrockford(p, DIR.DOWN) || this.isrockford(p, DIR.LEFT) || this.isrockford(p, DIR.RIGHT))
+      var newdir = BD.rotateLeft(dir);
+      if (this.isrockford(p, BD.DIR.UP) || this.isrockford(p, BD.DIR.DOWN) || this.isrockford(p, BD.DIR.LEFT) || this.isrockford(p, BD.DIR.RIGHT))
         this.explode(p);
-      else if (this.isamoeba(p, DIR.UP) || this.isamoeba(p, DIR.DOWN) || this.isamoeba(p, DIR.LEFT) || this.isamoeba(p, DIR.RIGHT))
+      else if (this.isamoeba(p, BD.DIR.UP) || this.isamoeba(p, BD.DIR.DOWN) || this.isamoeba(p, BD.DIR.LEFT) || this.isamoeba(p, BD.DIR.RIGHT))
         this.explode(p);
       else if (this.isempty(p, newdir))
         this.move(p, newdir, FIREFLIES[newdir]);
       else if (this.isempty(p, dir))
         this.move(p, dir, FIREFLIES[dir]);
       else
-        this.set(p, FIREFLIES[rotateRight(dir)]);
+        this.set(p, FIREFLIES[BD.rotateRight(dir)]);
     },
 
     updateButterfly: function(p, dir) {
-      var newdir = rotateRight(dir);
-      if (this.isrockford(p, DIR.UP) || this.isrockford(p, DIR.DOWN) || this.isrockford(p, DIR.LEFT) || this.isrockford(p, DIR.RIGHT))
+      var newdir = BD.rotateRight(dir);
+      if (this.isrockford(p, BD.DIR.UP) || this.isrockford(p, BD.DIR.DOWN) || this.isrockford(p, BD.DIR.LEFT) || this.isrockford(p, BD.DIR.RIGHT))
         this.explode(p);
-      else if (this.isamoeba(p, DIR.UP) || this.isamoeba(p, DIR.DOWN) || this.isamoeba(p, DIR.LEFT) || this.isamoeba(p, DIR.RIGHT))
+      else if (this.isamoeba(p, BD.DIR.UP) || this.isamoeba(p, BD.DIR.DOWN) || this.isamoeba(p, BD.DIR.LEFT) || this.isamoeba(p, BD.DIR.RIGHT))
         this.explode(p);
       else if (this.isempty(p, newdir))
         this.move(p, newdir, BUTTERFLIES[newdir]);
       else if (this.isempty(p, dir))
         this.move(p, dir, BUTTERFLIES[dir]);
       else
-        this.set(p, BUTTERFLIES[rotateLeft(dir)]);
+        this.set(p, BUTTERFLIES[BD.rotateLeft(dir)]);
     },
 
     updateExplodeToSpace: function(p, n) {
@@ -646,22 +613,22 @@ Boulderdash = function() {
       }
       else {
         this.amoeba.size++;
-        if (this.isempty(p, DIR.UP) || this.isempty(p, DIR.DOWN) || this.isempty(p, DIR.RIGHT) || this.isempty(p, DIR.LEFT) ||
-            this.isdirt(p,  DIR.UP) || this.isdirt(p,  DIR.DOWN) || this.isdirt(p,  DIR.RIGHT) || this.isdirt(p,  DIR.LEFT)) {
+        if (this.isempty(p, BD.DIR.UP) || this.isempty(p, BD.DIR.DOWN) || this.isempty(p, BD.DIR.RIGHT) || this.isempty(p, BD.DIR.LEFT) ||
+            this.isdirt(p,  BD.DIR.UP) || this.isdirt(p,  BD.DIR.DOWN) || this.isdirt(p,  BD.DIR.RIGHT) || this.isdirt(p,  BD.DIR.LEFT)) {
           this.amoeba.enclosed = false;
         }
         if (this.frame >= this.birth) {
           var grow = this.amoeba.slow ? (randomInt(1, 128) < 4) : (randomInt(1, 4) == 1);
-          var dir  = randomChoice([DIR.UP, DIR.DOWN, DIR.LEFT, DIR.RIGHT]);
+          var dir  = randomChoice([BD.DIR.UP, BD.DIR.DOWN, BD.DIR.LEFT, BD.DIR.RIGHT]);
           if (grow && (this.isdirt(p, dir) || this.isempty(p, dir)))
-            this.set(p, Entity.AMOEBA, dir);
+            this.set(p, BD.Entity.AMOEBA, dir);
         }
       }
     },
 
     explode: function(p, dir) {
-      var p2        = new Point(p.x, p.y, dir);
-      var explosion = (this.isbutterfly(p2) ? Entity.EXPLODETODIAMOND0 : Entity.EXPLODETOSPACE0);
+      var p2        = new BD.Point(p.x, p.y, dir);
+      var explosion = (this.isbutterfly(p2) ? BD.Entity.EXPLODETODIAMOND0 : BD.Entity.EXPLODETOSPACE0);
       this.set(p2, explosion);
       for(dir = 0 ; dir < 8 ; ++dir) { // for each of the 8 directions
         if (this.isexplodable(p2, dir))
@@ -672,12 +639,12 @@ Boulderdash = function() {
     },
 
     push: function(p, dir) {
-      p2 = new Point(p.x, p.y, dir);
+      p2 = new BD.Point(p.x, p.y, dir);
       if (this.isempty(p2, dir)) {
         if (randomInt(1,8) == 1) {
-          this.move(p2, dir, Entity.BOULDER);
-          if (!moving.grab)
-            this.move(p, dir, Entity.ROCKFORD);
+          this.move(p2, dir, BD.Entity.BOULDER);
+          if (!this.moving.grab)
+            this.move(p, dir, BD.Entity.ROCKFORD);
         }
       }
     },
@@ -686,7 +653,7 @@ Boulderdash = function() {
       if (this.magic.time > 0) {
         this.magic.active = true;
         this.clear(p);
-        var p2 = new Point(p.x, p.y + 2);
+        var p2 = new BD.Point(p.x, p.y + 2);
         if (this.isempty(p2))
           this.set(p2, to);
       }
@@ -710,7 +677,48 @@ Boulderdash = function() {
       }
     }
 
-  };
+};
+
+
+
+Boulderdash = function() {
+
+  //=========================================================================
+  // GENERAL purpose constants and helper methods
+  //=========================================================================
+
+  var KEY = BD.KEY;
+
+  var Dom = BD.Dom;
+
+  var DIR  = BD.DIR;
+  var DIRX = BD.DIRX;
+  var DIRY = BD.DIRY;
+
+  function rotateLeft(dir)  { return (dir-2) + (dir < 2 ? 8 : 0); };
+  function rotateRight(dir) { return (dir+2) - (dir > 5 ? 8 : 0); };
+  function horizontal(dir)  { return (dir === DIR.LEFT) || (dir === DIR.RIGHT); };
+  function vertical(dir)    { return (dir === DIR.UP)   || (dir === DIR.DOWN);  };
+
+  //-------------------------------------------------------------------------
+
+  var Entity = BD.Entity;
+ 
+  for(var key in Entity) {
+    Entity[key].name = key;                 // give it a human friendly name
+    Entity[Entity[key].code] = Entity[key]; // and allow lookup by code
+  }
+
+  function isFirefly(o)   { return (Entity.FIREFLY1.code     <= o.code) && (o.code <= Entity.FIREFLY4.code);   }
+  function isButterfly(o) { return (Entity.BUTTERFLY1.code   <= o.code) && (o.code <= Entity.BUTTERFLY4.code); }
+
+  //----------------------------------------------------------------------------
+
+  //=========================================================================
+  // GAME LOGIC
+  //=========================================================================
+
+  var Game = BD.Game;
 
   var moving = {
     dir:      DIR.NONE,
@@ -742,7 +750,7 @@ Boulderdash = function() {
   // GAME LOOP
   //=========================================================================
 
-  var game   = new Game(),       // the boulderdash game logic (rendering independent)
+  var game   = new Game(moving),       // the boulderdash game logic (rendering independent)
       render = new BD.Render(game, moving), // the boulderdash game renderer
       stats  = new Stats();      // the FPS counter widget
 
