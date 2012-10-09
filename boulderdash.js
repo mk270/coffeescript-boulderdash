@@ -542,34 +542,27 @@ BD.Game.prototype = {
 	  return this.updateRock(p, BD.Entity.DIAMONDFALLING);
     },
 
-    updateBoulderFalling: function(p) {
+    updateRockFalling: function(p, rock, rockAtRest, convertedRock) {
       if (this.isempty(p, BD.DIR.DOWN))
-        this.move(p, BD.DIR.DOWN, BD.Entity.BOULDERFALLING);
+        this.move(p, BD.DIR.DOWN, rock);
       else if (this.isexplodable(p, BD.DIR.DOWN))
         this.explode(p, BD.DIR.DOWN);
       else if (this.ismagic(p, BD.DIR.DOWN))
-        this.domagic(p, BD.Entity.DIAMOND);
+        this.domagic(p, convertedRock);
       else if (this.isrounded(p, BD.DIR.DOWN) && this.isempty(p, BD.DIR.LEFT) && this.isempty(p, BD.DIR.DOWNLEFT))
-        this.move(p, BD.DIR.LEFT, BD.Entity.BOULDERFALLING);
+        this.move(p, BD.DIR.LEFT, rock);
       else if (this.isrounded(p, BD.DIR.DOWN) && this.isempty(p, BD.DIR.RIGHT) && this.isempty(p, BD.DIR.DOWNRIGHT))
-        this.move(p, BD.DIR.RIGHT, BD.Entity.BOULDERFALLING);
+        this.move(p, BD.DIR.RIGHT, rock);
       else
-        this.set(p, BD.Entity.BOULDER);
+        this.set(p, rockAtRest);
+    },
+
+    updateBoulderFalling: function(p) {
+	  return this.updateRockFalling(p, BD.Entity.BOULDERFALLING, BD.Entity.BOULDER, BD.Entity.DIAMOND);
     },
 
     updateDiamondFalling: function(p) {
-      if (this.isempty(p, BD.DIR.DOWN))
-        this.move(p, BD.DIR.DOWN, BD.Entity.DIAMONDFALLING);
-      else if (this.isexplodable(p, BD.DIR.DOWN))
-        this.explode(p, BD.DIR.DOWN);
-      else if (this.ismagic(p, BD.DIR.DOWN))
-        this.domagic(p, BD.Entity.BOULDER);
-      else if (this.isrounded(p, BD.DIR.DOWN) && this.isempty(p, BD.DIR.LEFT) && this.isempty(p, BD.DIR.DOWNLEFT))
-        this.move(p, BD.DIR.LEFT, BD.Entity.DIAMONDFALLING);
-      else if (this.isrounded(p, BD.DIR.DOWN) && this.isempty(p, BD.DIR.RIGHT) && this.isempty(p, BD.DIR.DOWNRIGHT))
-        this.move(p, BD.DIR.RIGHT, BD.Entity.DIAMONDFALLING);
-      else
-        this.set(p, BD.Entity.DIAMOND);
+	  return this.updateRockFalling(p, BD.Entity.DIAMONDFALLING, BD.Entity.DIAMOND, BD.Entity.BOULDER);
     },
 
     updateFirefly: function(p, dir) {
