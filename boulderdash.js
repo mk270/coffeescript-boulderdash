@@ -90,6 +90,10 @@ BD.extend({
 
 });
 
+for(var key in BD.Entity) {
+    BD.Entity[key].name = key;                 // give it a human friendly name
+    BD.Entity[BD.Entity[key].code] = BD.Entity[key]; // and allow lookup by code
+};
 
   var FIREFLIES = [];
   FIREFLIES[BD.DIR.LEFT]  = BD.Entity.FIREFLY1;
@@ -692,25 +696,8 @@ Boulderdash = function() {
   var Dom = BD.Dom;
 
   var DIR  = BD.DIR;
-  var DIRX = BD.DIRX;
-  var DIRY = BD.DIRY;
-
-  function rotateLeft(dir)  { return (dir-2) + (dir < 2 ? 8 : 0); };
-  function rotateRight(dir) { return (dir+2) - (dir > 5 ? 8 : 0); };
-  function horizontal(dir)  { return (dir === DIR.LEFT) || (dir === DIR.RIGHT); };
-  function vertical(dir)    { return (dir === DIR.UP)   || (dir === DIR.DOWN);  };
 
   //-------------------------------------------------------------------------
-
-  var Entity = BD.Entity;
- 
-  for(var key in Entity) {
-    Entity[key].name = key;                 // give it a human friendly name
-    Entity[Entity[key].code] = Entity[key]; // and allow lookup by code
-  }
-
-  function isFirefly(o)   { return (Entity.FIREFLY1.code     <= o.code) && (o.code <= Entity.FIREFLY4.code);   }
-  function isButterfly(o) { return (Entity.BUTTERFLY1.code   <= o.code) && (o.code <= Entity.BUTTERFLY4.code); }
 
   //----------------------------------------------------------------------------
 
