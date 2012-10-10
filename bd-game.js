@@ -336,9 +336,11 @@ BD.Game.prototype = {
         this.set(p, this.amoeba.dead);
       }
       else {
+		var self = this;
+		var by_empty = function(p, d) { return self.isempty(p, d); };
+		var by_dirt  = function(p, d) { return self.isdirt(p, d); };
         this.amoeba.size++;
-        if (this.isempty(p, BD.DIR.UP) || this.isempty(p, BD.DIR.DOWN) || this.isempty(p, BD.DIR.RIGHT) || this.isempty(p, BD.DIR.LEFT) ||
-            this.isdirt(p,  BD.DIR.UP) || this.isdirt(p,  BD.DIR.DOWN) || this.isdirt(p,  BD.DIR.RIGHT) || this.isdirt(p,  BD.DIR.LEFT)) {
+        if (this.adjacent(p, by_empty) || this.adjacent(p, by_dirt)) {
           this.amoeba.enclosed = false;
         }
         if (this.frame >= this.birth) {
