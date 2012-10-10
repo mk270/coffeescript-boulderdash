@@ -1,4 +1,10 @@
 
+// known physics bugs:
+//  rocks are too eager to explode flies, partic in the "just started to fall" state and rolloffs
+//  you can touch flies - the check for explode is in the wrong place / depends on fly movement
+//  boulders on enchanted walls seem to be jammed in falling state
+
+
 BD.Game = function(moving, options) {
     this.options = options || {};
     this.storage = window.localStorage || {};
