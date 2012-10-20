@@ -5,6 +5,19 @@
 //  boulders on enchanted walls seem to be jammed in falling state
 
 
+random = function(min, max) {
+    return min + (Math.random() * (max - min));
+  };
+
+randomInt = function(min, max) {
+    return Math.floor(random(min, max));
+  };
+
+randomChoice = function(choices) {
+    return choices[Math.round(random(0, choices.length - 1))];
+  };
+
+
 BD.Game = function(moving, options) {
     this.options = options || {};
     this.storage = window.localStorage || {};
@@ -202,7 +215,7 @@ BD.Game.prototype = {
 
     updatePreRockford: function(p, n) {
       if (this.frame >= this.birth)
-        this.set(p, PREROCKFORDS[n+1]);
+        this.set(p, BD.Sequences.PREROCKFORDS[n+1]);
     },
 
     updatePreOutbox: function(p) {
@@ -318,23 +331,23 @@ BD.Game.prototype = {
     updateFirefly: function(p, dir) {
       var newdir = BD.rotateLeft(dir);
 	  var olddir = BD.rotateRight(dir);
-	  var phases = FIREFLIES;
+	  var phases = BD.Sequences.FIREFLIES;
 	  this.updateFly(p, dir, newdir, olddir, phases);
     },
 
     updateButterfly: function(p, dir) {
       var newdir = BD.rotateRight(dir);
 	  var olddir = BD.rotateLeft(dir);
-	  var phases = BUTTERFLIES;
+	  var phases = BD.Sequences.BUTTERFLIES;
 	  this.updateFly(p, dir, newdir, olddir, phases);
     },
 
     updateExplodeToSpace: function(p, n) {
-      this.set(p, EXPLODETOSPACE[n+1]);
+      this.set(p, BD.Sequences.EXPLODETOSPACE[n+1]);
     },
 
     updateExplodeToDiamond: function(p, n) {
-      this.set(p, EXPLODETODIAMOND[n+1]);
+      this.set(p, BD.Sequences.EXPLODETODIAMOND[n+1]);
     },
 
     updateAmoeba: function(p) {
