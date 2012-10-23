@@ -13,12 +13,6 @@ if not window.requestAnimationFrame
                                    window.msRequestAnimationFrame or
                                    (callback, element) -> window.setTimeout(callback, 1000 / 60))
 
-Object::extend = (source) ->
-  for property of source
-    if source.hasOwnProperty(property)
-      this[property] = source[property]
-  this
-
 array_of_tuples = (l) ->
   tmp = []
   for i in l
@@ -47,378 +41,374 @@ DIR =
 DIRX = [     0,          1,        1,            1,       0,          -1,      -1,        -1 ]
 DIRY = [    -1,         -1,        0,            1,       1,           1,       0,        -1 ]
 
-BD.extend(
-  Entity:
-    SPACE:
-      code: 0x00
-      rounded: false
-      explodable: true
-      vulnerable: false
-      sprite: 
-        x: 0
-        y: 6  
-      flash: 
-        x: 4
-        y: 0 
-    DIRT:              
-      code: 0x01
-      rounded: false
-      explodable: true
-      vulnerable: false
-      sprite: 
-        x: 1
-        y: 7                  
-    BRICKWALL:         
-      code: 0x02
-      rounded: true
-      explodable: true
-      vulnerable: false
-      sprite: 
-        x: 3
-        y: 6                  
-    MAGICWALL:         
-      code: 0x03
-      rounded: false
-      explodable: true
-      vulnerable: false
-      sprite: 
-        x: 4
-        y: 6
-        f: 4
-        fps: 20  
-    PREOUTBOX:         
-      code: 0x04
-      rounded: false
-      explodable: true
-      vulnerable: false
-      sprite: 
-        x: 1
-        y: 6                  
-    OUTBOX:            
-      code: 0x05
-      rounded: false
-      explodable: true
-      vulnerable: false
-      sprite: 
-        x: 1
-        y: 6
-        f: 2
-        fps: 4   
-    STEELWALL:         
-      code: 0x07
-      rounded: false
-      explodable: false
-      vulnerable: false
-      sprite: 
-        x: 1
-        y: 6                  
-    FIREFLY1:          
-      code: 0x08
-      rounded: false
-      explodable: true
-      vulnerable: true
-      sprite: 
-        x: 0
-        y: 9
-        f: 8
-        fps: 20  
-    FIREFLY2:          
-      code: 0x09
-      rounded: false
-      explodable: true
-      vulnerable: true
-      sprite: 
-        x: 0
-        y: 9
-        f: 8
-        fps: 20  
-    FIREFLY3:          
-      code: 0x0A
-      rounded: false
-      explodable: true
-      vulnerable: true
-      sprite: 
-        x: 0
-        y: 9
-        f: 8
-        fps: 20  
-    FIREFLY4:          
-      code: 0x0B
-      rounded: false
-      explodable: true
-      vulnerable: true
-      sprite: 
-        x: 0
-        y: 9
-        f: 8
-        fps: 20  
-    BOULDER:           
-      code: 0x10
-      rounded: true
-      explodable: true
-      vulnerable: false
-      sprite: 
-        x: 0
-        y: 7                  
-    BOULDERFALLING:    
-      code: 0x12
-      rounded: false
-      explodable: true
-      vulnerable: false
-      sprite: 
-        x: 0
-        y: 7                  
-    DIAMOND:           
-      code: 0x14
-      rounded: true
-      explodable: true
-      vulnerable: false
-      sprite: 
-        x: 0
-        y: 10
-        f: 8
-        fps: 20  
-    DIAMONDFALLING:    
-      code: 0x16
-      rounded: false
-      explodable: true
-      vulnerable: false
-      sprite: 
-        x: 0
-        y: 10
-        f: 8
-        fps: 20  
-    EXPLODETOSPACE0:   
-      code: 0x1B
-      rounded: false
-      explodable: false
-      vulnerable: false
-      sprite: 
-        x: 3
-        y: 7                  
-    EXPLODETOSPACE1:   
-      code: 0x1C
-      rounded: false
-      explodable: false
-      vulnerable: false
-      sprite: 
-        x: 4
-        y: 7                  
-    EXPLODETOSPACE2:   
-      code: 0x1D
-      rounded: false
-      explodable: false
-      vulnerable: false
-      sprite: 
-        x: 5
-        y: 7                  
-    EXPLODETOSPACE3:   
-      code: 0x1E
-      rounded: false
-      explodable: false
-      vulnerable: false
-      sprite: 
-        x: 4
-        y: 7                  
-    EXPLODETOSPACE4:   
-      code: 0x1F
-      rounded: false
-      explodable: false
-      vulnerable: false
-      sprite: 
-        x: 3
-        y: 7                  
-    EXPLODETODIAMOND0: 
-      code: 0x20
-      rounded: false
-      explodable: false
-      vulnerable: false
-      sprite: 
-        x: 3
-        y: 7                  
-    EXPLODETODIAMOND1: 
-      code: 0x21
-      rounded: false
-      explodable: false
-      vulnerable: false
-      sprite: 
-        x: 4
-        y: 7                  
-    EXPLODETODIAMOND2: 
-      code: 0x22
-      rounded: false
-      explodable: false
-      vulnerable: false
-      sprite: 
-        x: 5
-        y: 7                  
-    EXPLODETODIAMOND3: 
-      code: 0x23
-      rounded: false
-      explodable: false
-      vulnerable: false
-      sprite: 
-        x: 4
-        y: 7                  
-    EXPLODETODIAMOND4: 
-      code: 0x24
-      rounded: false
-      explodable: false
-      vulnerable: false
-      sprite: 
-        x: 3
-        y: 7                  
-    PREROCKFORD1:      
-      code: 0x25
-      rounded: false
-      explodable: false
-      vulnerable: false
-      sprite: 
-        x: 1
-        y: 6
-        f: 2
-        fps: 4   
-    PREROCKFORD2:      
-      code: 0x26
-      rounded: false
-      explodable: false
-      vulnerable: false
-      sprite: 
-        x: 1
-        y: 0                  
-    PREROCKFORD3:      
-      code: 0x27
-      rounded: false
-      explodable: false
-      vulnerable: false
-      sprite: 
-        x: 2
-        y: 0                  
-    PREROCKFORD4:      
-      code: 0x28
-      rounded: false
-      explodable: false
-      vulnerable: false
-      sprite: 
-        x: 3
-        y: 0                  
-    BUTTERFLY1:        
-      code: 0x30
-      rounded: false
-      explodable: true
-      vulnerable: true
-      sprite: 
-        x: 0
-        y: 11
-        f: 8
-        fps: 20  
-    BUTTERFLY2:        
-      code: 0x31
-      rounded: false
-      explodable: true
-      vulnerable: true
-      sprite: 
-        x: 0
-        y: 11
-        f: 8
-        fps: 20  
-    BUTTERFLY3:        
-      code: 0x32
-      rounded: false
-      explodable: true
-      vulnerable: true
-      sprite: 
-        x: 0
-        y: 11
-        f: 8
-        fps: 20  
-    BUTTERFLY4:        
-      code: 0x33
-      rounded: false
-      explodable: true
-      vulnerable: true
-      sprite: 
-        x: 0
-        y: 11
-        f: 8
-        fps: 20  
-    ROCKFORD:          
-      code: 0x38
-      rounded: false
-      explodable: true
-      vulnerable: true
-      sprite:
-        x: 0
-        y: 0                # standing still
-      left: 
-        x: 0
-        y: 4
-        f: 8
-        fps: 20  # running left
-      right: 
-        x: 0
-        y: 5
-        f: 8
-        fps: 20  # running right
-      blink: 
-        x: 0
-        y: 1
-        f: 8
-        fps: 20  # blinking
-      tap: 
-        x: 0
-        y: 2
-        f: 8
-        fps: 20  # foot tapping
-      blinktap: 
-        x: 0
-        y: 3
-        f: 8
-        fps: 20  # foot tapping and blinking
-    AMOEBA:            
-      code: 0x3A
-      rounded: false
-      explodable: true
-      vulnerable: false
-      sprite: 
-        x: 0
-        y: 8
-        f: 8
-        fps: 20 
-  rotateLeft: (dir) -> (dir-2) + (if dir < 2 then 8 else 0)
-  rotateRight: (dir) -> (dir+2) - (if dir > 5 then 8 else 0)
-  horizontal: (dir) -> (dir is DIR.LEFT) or (dir is DIR.RIGHT)
-  vertical: (dir) -> (dir is DIR.UP) or (dir is DIR.DOWN)
-  Point: (x, y, dir) ->
-    @x = x + (DIRX[dir] || 0)
-    @y = y + (DIRY[dir] || 0)
-  isFirefly: (o) -> (BD.Entity.FIREFLY1.code <= o.code) and (o.code <= BD.Entity.FIREFLY4.code)
-  isButterfly: (o) -> (BD.Entity.BUTTERFLY1.code <= o.code) and (o.code <= BD.Entity.BUTTERFLY4.code)
-)
+Entity =
+  SPACE:
+    code: 0x00
+    rounded: false
+    explodable: true
+    vulnerable: false
+    sprite: 
+      x: 0
+      y: 6  
+    flash: 
+      x: 4
+      y: 0 
+  DIRT:              
+    code: 0x01
+    rounded: false
+    explodable: true
+    vulnerable: false
+    sprite: 
+      x: 1
+      y: 7                  
+  BRICKWALL:         
+    code: 0x02
+    rounded: true
+    explodable: true
+    vulnerable: false
+    sprite: 
+      x: 3
+      y: 6                  
+  MAGICWALL:         
+    code: 0x03
+    rounded: false
+    explodable: true
+    vulnerable: false
+    sprite: 
+      x: 4
+      y: 6
+      f: 4
+      fps: 20  
+  PREOUTBOX:         
+    code: 0x04
+    rounded: false
+    explodable: true
+    vulnerable: false
+    sprite: 
+      x: 1
+      y: 6                  
+  OUTBOX:            
+    code: 0x05
+    rounded: false
+    explodable: true
+    vulnerable: false
+    sprite: 
+      x: 1
+      y: 6
+      f: 2
+      fps: 4   
+  STEELWALL:         
+    code: 0x07
+    rounded: false
+    explodable: false
+    vulnerable: false
+    sprite: 
+      x: 1
+      y: 6                  
+  FIREFLY1:          
+    code: 0x08
+    rounded: false
+    explodable: true
+    vulnerable: true
+    sprite: 
+      x: 0
+      y: 9
+      f: 8
+      fps: 20  
+  FIREFLY2:          
+    code: 0x09
+    rounded: false
+    explodable: true
+    vulnerable: true
+    sprite: 
+      x: 0
+      y: 9
+      f: 8
+      fps: 20  
+  FIREFLY3:          
+    code: 0x0A
+    rounded: false
+    explodable: true
+    vulnerable: true
+    sprite: 
+      x: 0
+      y: 9
+      f: 8
+      fps: 20  
+  FIREFLY4:          
+    code: 0x0B
+    rounded: false
+    explodable: true
+    vulnerable: true
+    sprite: 
+      x: 0
+      y: 9
+      f: 8
+      fps: 20  
+  BOULDER:           
+    code: 0x10
+    rounded: true
+    explodable: true
+    vulnerable: false
+    sprite: 
+      x: 0
+      y: 7                  
+  BOULDERFALLING:    
+    code: 0x12
+    rounded: false
+    explodable: true
+    vulnerable: false
+    sprite: 
+      x: 0
+      y: 7                  
+  DIAMOND:           
+    code: 0x14
+    rounded: true
+    explodable: true
+    vulnerable: false
+    sprite: 
+      x: 0
+      y: 10
+      f: 8
+      fps: 20  
+  DIAMONDFALLING:    
+    code: 0x16
+    rounded: false
+    explodable: true
+    vulnerable: false
+    sprite: 
+      x: 0
+      y: 10
+      f: 8
+      fps: 20  
+  EXPLODETOSPACE0:   
+    code: 0x1B
+    rounded: false
+    explodable: false
+    vulnerable: false
+    sprite: 
+      x: 3
+      y: 7                  
+  EXPLODETOSPACE1:   
+    code: 0x1C
+    rounded: false
+    explodable: false
+    vulnerable: false
+    sprite: 
+      x: 4
+      y: 7                  
+  EXPLODETOSPACE2:   
+    code: 0x1D
+    rounded: false
+    explodable: false
+    vulnerable: false
+    sprite: 
+      x: 5
+      y: 7                  
+  EXPLODETOSPACE3:   
+    code: 0x1E
+    rounded: false
+    explodable: false
+    vulnerable: false
+    sprite: 
+      x: 4
+      y: 7                  
+  EXPLODETOSPACE4:   
+    code: 0x1F
+    rounded: false
+    explodable: false
+    vulnerable: false
+    sprite: 
+      x: 3
+      y: 7                  
+  EXPLODETODIAMOND0: 
+    code: 0x20
+    rounded: false
+    explodable: false
+    vulnerable: false
+    sprite: 
+      x: 3
+      y: 7                  
+  EXPLODETODIAMOND1: 
+    code: 0x21
+    rounded: false
+    explodable: false
+    vulnerable: false
+    sprite: 
+      x: 4
+      y: 7                  
+  EXPLODETODIAMOND2: 
+    code: 0x22
+    rounded: false
+    explodable: false
+    vulnerable: false
+    sprite: 
+      x: 5
+      y: 7                  
+  EXPLODETODIAMOND3: 
+    code: 0x23
+    rounded: false
+    explodable: false
+    vulnerable: false
+    sprite: 
+      x: 4
+      y: 7                  
+  EXPLODETODIAMOND4: 
+    code: 0x24
+    rounded: false
+    explodable: false
+    vulnerable: false
+    sprite: 
+      x: 3
+      y: 7                  
+  PREROCKFORD1:      
+    code: 0x25
+    rounded: false
+    explodable: false
+    vulnerable: false
+    sprite: 
+      x: 1
+      y: 6
+      f: 2
+      fps: 4   
+  PREROCKFORD2:      
+    code: 0x26
+    rounded: false
+    explodable: false
+    vulnerable: false
+    sprite: 
+      x: 1
+      y: 0                  
+  PREROCKFORD3:      
+    code: 0x27
+    rounded: false
+    explodable: false
+    vulnerable: false
+    sprite: 
+      x: 2
+      y: 0                  
+  PREROCKFORD4:      
+    code: 0x28
+    rounded: false
+    explodable: false
+    vulnerable: false
+    sprite: 
+      x: 3
+      y: 0                  
+  BUTTERFLY1:        
+    code: 0x30
+    rounded: false
+    explodable: true
+    vulnerable: true
+    sprite: 
+      x: 0
+      y: 11
+      f: 8
+      fps: 20  
+  BUTTERFLY2:        
+    code: 0x31
+    rounded: false
+    explodable: true
+    vulnerable: true
+    sprite: 
+      x: 0
+      y: 11
+      f: 8
+      fps: 20  
+  BUTTERFLY3:        
+    code: 0x32
+    rounded: false
+    explodable: true
+    vulnerable: true
+    sprite: 
+      x: 0
+      y: 11
+      f: 8
+      fps: 20  
+  BUTTERFLY4:        
+    code: 0x33
+    rounded: false
+    explodable: true
+    vulnerable: true
+    sprite: 
+      x: 0
+      y: 11
+      f: 8
+      fps: 20  
+  ROCKFORD:          
+    code: 0x38
+    rounded: false
+    explodable: true
+    vulnerable: true
+    sprite:
+      x: 0
+      y: 0                # standing still
+    left: 
+      x: 0
+      y: 4
+      f: 8
+      fps: 20  # running left
+    right: 
+      x: 0
+      y: 5
+      f: 8
+      fps: 20  # running right
+    blink: 
+      x: 0
+      y: 1
+      f: 8
+      fps: 20  # blinking
+    tap: 
+      x: 0
+      y: 2
+      f: 8
+      fps: 20  # foot tapping
+    blinktap: 
+      x: 0
+      y: 3
+      f: 8
+      fps: 20  # foot tapping and blinking
+  AMOEBA:            
+    code: 0x3A
+    rounded: false
+    explodable: true
+    vulnerable: false
+    sprite: 
+      x: 0
+      y: 8
+      f: 8
+      fps: 20 
 
-for key of BD.Entity
-    BD.Entity[key].name = key
-    BD.Entity[BD.Entity[key].code] = BD.Entity[key]
+for key of Entity
+    Entity[key].name = key
+    Entity[Entity[key].code] = Entity[key]
 
-BD.extend(
-  Sequences:
-    FIREFLIES: array_of_tuples( [
-      [DIR.LEFT,  BD.Entity.FIREFLY1],
-      [DIR.UP,    BD.Entity.FIREFLY2],
-      [DIR.RIGHT, BD.Entity.FIREFLY3],
-      [DIR.DOWN,  BD.Entity.FIREFLY4]
-    ] )
-    BUTTERFLIES: array_of_tuples( [
-      [DIR.LEFT,  BD.Entity.BUTTERFLY1],
-      [DIR.UP,    BD.Entity.BUTTERFLY2],
-      [DIR.RIGHT, BD.Entity.BUTTERFLY3],
-      [DIR.DOWN,  BD.Entity.BUTTERFLY4]
-    ] )
-    PREROCKFORDS: [ BD.Entity.PREROCKFORD1, BD.Entity.PREROCKFORD2, BD.Entity.PREROCKFORD3, BD.Entity.PREROCKFORD, BD.Entity.ROCKFORD ]
-    EXPLODETOSPACE: [ BD.Entity.EXPLODETOSPACE0, BD.Entity.EXPLODETOSPACE1, BD.Entity.EXPLODETOSPACE2, BD.Entity.EXPLODETOSPACE3, BD.Entity.EXPLODETOSPACE4, BD.Entity.SPACE ]
-    EXPLODETODIAMOND: [ BD.Entity.EXPLODETODIAMOND0, BD.Entity.EXPLODETODIAMOND1, BD.Entity.EXPLODETODIAMOND2, BD.Entity.EXPLODETODIAMOND3, BD.Entity.EXPLODETODIAMOND4, BD.Entity.DIAMOND ]
-)
+rotateLeft = (dir) -> (dir-2) + (if dir < 2 then 8 else 0)
+rotateRight = (dir) -> (dir+2) - (if dir > 5 then 8 else 0)
+horizontal = (dir) -> (dir is DIR.LEFT) or (dir is DIR.RIGHT)
+vertical = (dir) -> (dir is DIR.UP) or (dir is DIR.DOWN)
+Point = (x, y, dir) ->
+  @x = x + (DIRX[dir] || 0)
+  @y = y + (DIRY[dir] || 0)
+isFirefly = (o) -> (Entity.FIREFLY1.code <= o.code) and (o.code <= Entity.FIREFLY4.code)
+isButterfly = (o) -> (Entity.BUTTERFLY1.code <= o.code) and (o.code <= Entity.BUTTERFLY4.code)
 
+Sequences =
+  FIREFLIES: array_of_tuples( [
+    [DIR.LEFT,  Entity.FIREFLY1],
+    [DIR.UP,    Entity.FIREFLY2],
+    [DIR.RIGHT, Entity.FIREFLY3],
+    [DIR.DOWN,  Entity.FIREFLY4]
+  ] )
+  BUTTERFLIES: array_of_tuples( [
+    [DIR.LEFT,  Entity.BUTTERFLY1],
+    [DIR.UP,    Entity.BUTTERFLY2],
+    [DIR.RIGHT, Entity.BUTTERFLY3],
+    [DIR.DOWN,  Entity.BUTTERFLY4]
+  ] )
+  PREROCKFORDS: [ Entity.PREROCKFORD1, Entity.PREROCKFORD2, Entity.PREROCKFORD3, Entity.PREROCKFORD, Entity.ROCKFORD ]
+  EXPLODETOSPACE: [ Entity.EXPLODETOSPACE0, Entity.EXPLODETOSPACE1, Entity.EXPLODETOSPACE2, Entity.EXPLODETOSPACE3, Entity.EXPLODETOSPACE4, Entity.SPACE ]
+  EXPLODETODIAMOND: [ Entity.EXPLODETODIAMOND0, Entity.EXPLODETODIAMOND1, Entity.EXPLODETODIAMOND2, Entity.EXPLODETODIAMOND3, Entity.EXPLODETODIAMOND4, Entity.DIAMOND ]
 
 class Render
   constructor: (game, moving) ->
@@ -494,14 +484,14 @@ class Render
   cell: (cell) ->
     object = cell.object
     sprite = object.sprite
-    if @invalid.cave or cell.invalid or (sprite.f > 1) or (object is BD.Entity.ROCKFORD)
-      if object is BD.Entity.ROCKFORD
+    if @invalid.cave or cell.invalid or (sprite.f > 1) or (object is Entity.ROCKFORD)
+      if object is Entity.ROCKFORD
         @rockford(cell)
       else 
-        if (object is BD.Entity.SPACE) and (@game.flash > @game.frame)
-          sprite = BD.Entity.SPACE.flash
-        else if object is BD.Entity.MAGICWALL and not @game.magic.active
-          sprite = BD.Entity.BRICKWALL.sprite
+        if (object is Entity.SPACE) and (@game.flash > @game.frame)
+          sprite = Entity.SPACE.flash
+        else if object is Entity.MAGICWALL and not @game.magic.active
+          sprite = Entity.BRICKWALL.sprite
         @sprite(sprite, cell)
         @validateCell(cell)
         null
@@ -514,18 +504,18 @@ class Render
     @ctx.drawImage(@ctxSprites.canvas, (sprite.x + f) * 32, sprite.y * 32, 32, 32, cell.p.x * @dx, (1 + cell.p.y) * @dy, @dx, @dy)
 
   rockford: (cell) ->
-    if @moving.dir is DIR.LEFT or BD.vertical(@moving.dir) and @moving.lastXDir is DIR.LEFT
-      @sprite(BD.Entity.ROCKFORD.left, cell)
-    else if @moving.dir is DIR.RIGHT or BD.vertical(@moving.dir) and @moving.lastXDir is DIR.RIGHT
-      @sprite(BD.Entity.ROCKFORD.right, cell)
+    if @moving.dir is DIR.LEFT or vertical(@moving.dir) and @moving.lastXDir is DIR.LEFT
+      @sprite(Entity.ROCKFORD.left, cell)
+    else if @moving.dir is DIR.RIGHT or vertical(@moving.dir) and @moving.lastXDir is DIR.RIGHT
+      @sprite(Entity.ROCKFORD.right, cell)
     else if @game.idle.blink and not @game.idle.tap
-      @sprite(BD.Entity.ROCKFORD.blink, cell)
+      @sprite(Entity.ROCKFORD.blink, cell)
     else if not @game.idle.blink and @game.idle.tap
-      @sprite(BD.Entity.ROCKFORD.tap, cell)
+      @sprite(Entity.ROCKFORD.tap, cell)
     else if @game.idle.blink and @game.idle.tap
-      @sprite(BD.Entity.ROCKFORD.blinktap, cell)
+      @sprite(Entity.ROCKFORD.blinktap, cell)
     else
-      @sprite(BD.Entity.ROCKFORD.sprite, cell)
+      @sprite(Entity.ROCKFORD.sprite, cell)
 
   description: (msg) -> Dom.set('description', msg)
 
@@ -611,9 +601,9 @@ class Game
       for x in [0 .. @width-1]
         @cells[x]    = @cells[x] or [];
         @cells[x][y] =
-          p: new BD.Point(x,y)
+          p: new Point(x,y)
           frame: 0
-          object: BD.Entity[@cave.map[x][y]]
+          object: Entity[@cave.map[x][y]]
     @publish('level', @cave)
 
   prev: () -> if (@index > 0)
@@ -629,26 +619,26 @@ class Game
     cell.frame = @frame
     @publish('cell', cell)
     
-  clear: (p,dir) -> @set(p,BD.Entity.SPACE,dir)
+  clear: (p,dir) -> @set(p,Entity.SPACE,dir)
   move: (p,dir,o) -> @clear(p); @set(p,o,dir)
 
-  isempty:      (p,dir) -> @get(p,dir) is BD.Entity.SPACE    
-  isdirt:       (p,dir) -> @get(p,dir) is BD.Entity.DIRT     
-  isboulder:    (p,dir) -> @get(p,dir) is BD.Entity.BOULDER  
-  isrockford:   (p,dir) -> @get(p,dir) is BD.Entity.ROCKFORD 
-  isdiamond:    (p,dir) -> @get(p,dir) is BD.Entity.DIAMOND  
-  isamoeba:     (p,dir) -> @get(p,dir) is BD.Entity.AMOEBA   
-  ismagic:      (p,dir) -> @get(p,dir) is BD.Entity.MAGICWALL
-  isoutbox:     (p,dir) -> @get(p,dir) is BD.Entity.OUTBOX   
+  isempty:      (p,dir) -> @get(p,dir) is Entity.SPACE    
+  isdirt:       (p,dir) -> @get(p,dir) is Entity.DIRT     
+  isboulder:    (p,dir) -> @get(p,dir) is Entity.BOULDER  
+  isrockford:   (p,dir) -> @get(p,dir) is Entity.ROCKFORD 
+  isdiamond:    (p,dir) -> @get(p,dir) is Entity.DIAMOND  
+  isamoeba:     (p,dir) -> @get(p,dir) is Entity.AMOEBA   
+  ismagic:      (p,dir) -> @get(p,dir) is Entity.MAGICWALL
+  isoutbox:     (p,dir) -> @get(p,dir) is Entity.OUTBOX   
 
-  isfirefly:    (p,dir) -> BD.isFirefly(@get(p,dir))
-  isbutterfly:  (p,dir) -> BD.isButterfly(@get(p,dir))
+  isfirefly:    (p,dir) -> isFirefly(@get(p,dir))
+  isbutterfly:  (p,dir) -> isButterfly(@get(p,dir))
   isexplodable: (p,dir) -> @get(p,dir).explodable
   isvulnerable: (p,dir) -> @get(p,dir).vulnerable
   isrounded:    (p,dir) -> @get(p,dir).rounded
 
-  isfallingdiamond: (p,dir) -> @get(p,dir) is BD.Entity.DIAMONDFALLING
-  isfallingboulder: (p,dir) -> @get(p,dir) is BD.Entity.BOULDERFALLING
+  isfallingdiamond: (p,dir) -> @get(p,dir) is Entity.DIAMONDFALLING
+  isfallingboulder: (p,dir) -> @get(p,dir) is Entity.BOULDERFALLING
 
   eachCell: (fn, thisArg) ->
     for y in [0 .. @height-1]
@@ -722,9 +712,9 @@ class Game
   endFrame: () ->
     if not @amoeba.dead
       if (@amoeba.enclosed)
-        @amoeba.dead = BD.Entity.DIAMOND
+        @amoeba.dead = Entity.DIAMOND
       else if @amoeba.size > @amoeba.max
-        @amoeba.dead = BD.Entity.BOULDER
+        @amoeba.dead = Entity.BOULDER
       else if @amoeba.slow > 0
         @amoeba.slow--
     @magic.active = @magic.active and (--@magic.time > 0)
@@ -738,11 +728,11 @@ class Game
 
   updatePreRockford: (p, n) ->
     if @frame >= @birth
-      @set(p, BD.Sequences.PREROCKFORDS[n+1])
+      @set(p, Sequences.PREROCKFORDS[n+1])
 
   updatePreOutbox: (p) ->
     if @diamonds.collected >= @diamonds.needed
-        @set(p, BD.Entity.OUTBOX)
+        @set(p, Entity.OUTBOX)
 
   doGrab: (p, dir) ->
     if @isdirt(p, dir)
@@ -750,7 +740,7 @@ class Game
     else if @isdiamond(p, dir) or @isfallingdiamond(p, dir)
       @clear(p, dir)
       @collectDiamond()
-    else if BD.horizontal(dir) and @isboulder(p, dir) 
+    else if horizontal(dir) and @isboulder(p, dir) 
       @push(p, dir)
     else
       null
@@ -764,14 +754,14 @@ class Game
     else if @moving.grab
       @doGrab(p, dir)
     else if @isempty(p, dir) or @isdirt(p, dir) 
-      @move(p, dir, BD.Entity.ROCKFORD)
+      @move(p, dir, Entity.ROCKFORD)
     else if @isdiamond(p, dir) 
-      @move(p, dir, BD.Entity.ROCKFORD)
+      @move(p, dir, Entity.ROCKFORD)
       @collectDiamond()
-    else if BD.horizontal(dir) and @isboulder(p, dir) 
+    else if horizontal(dir) and @isboulder(p, dir) 
       @push(p, dir)
     else if @isoutbox(p, dir) 
-      @move(p, dir, BD.Entity.ROCKFORD)
+      @move(p, dir, Entity.ROCKFORD)
       @winLevel()
 
   updateRock: (p, rock) ->
@@ -796,10 +786,10 @@ class Game
     else
       @set(p, rockAtRest)
 
-  updateBoulder: (p) -> @updateRock(p, BD.Entity.BOULDERFALLING)
-  updateDiamond: (p) -> @updateRock(p, BD.Entity.DIAMONDFALLING)
-  updateBoulderFalling: (p) -> @updateRockFalling(p, BD.Entity.BOULDERFALLING, BD.Entity.BOULDER, BD.Entity.DIAMOND)
-  updateDiamondFalling: (p) -> @updateRockFalling(p, BD.Entity.DIAMONDFALLING, BD.Entity.DIAMOND, BD.Entity.BOULDER)
+  updateBoulder: (p) -> @updateRock(p, Entity.BOULDERFALLING)
+  updateDiamond: (p) -> @updateRock(p, Entity.DIAMONDFALLING)
+  updateBoulderFalling: (p) -> @updateRockFalling(p, Entity.BOULDERFALLING, Entity.BOULDER, Entity.DIAMOND)
+  updateDiamondFalling: (p) -> @updateRockFalling(p, Entity.DIAMONDFALLING, Entity.DIAMOND, Entity.BOULDER)
 
   adjacent: (p, fn) ->
     dirs = [ DIR.UP, DIR.DOWN, DIR.LEFT, DIR.RIGHT ]
@@ -827,10 +817,10 @@ class Game
       else
         @set(p, phases[olddir])
         
-  updateFirefly: (p, dir)   -> @updateFly(p, dir, BD.rotateLeft(dir), BD.rotateRight(dir), BD.Sequences.FIREFLIES)
-  updateButterfly: (p, dir) -> @updateFly(p, dir, BD.rotateRight(dir), BD.rotateLeft(dir), BD.Sequences.BUTTERFLIES)
-  updateExplodeToSpace: (p, n) -> @set(p, BD.Sequences.EXPLODETOSPACE[n+1])
-  updateExplodeToDiamond: (p, n) -> @set(p, BD.Sequences.EXPLODETODIAMOND[n+1])
+  updateFirefly: (p, dir)   -> @updateFly(p, dir, rotateLeft(dir), rotateRight(dir), Sequences.FIREFLIES)
+  updateButterfly: (p, dir) -> @updateFly(p, dir, rotateRight(dir), rotateLeft(dir), Sequences.BUTTERFLIES)
+  updateExplodeToSpace: (p, n) -> @set(p, Sequences.EXPLODETOSPACE[n+1])
+  updateExplodeToDiamond: (p, n) -> @set(p, Sequences.EXPLODETODIAMOND[n+1])
 
   updateAmoeba: (p) ->
     if @amoeba.dead
@@ -849,66 +839,66 @@ class Game
                  (randomInt(1, 4) is 1)
         dir  = randomChoice([DIR.UP, DIR.DOWN, DIR.LEFT, DIR.RIGHT])
         if grow and (@isdirt(p, dir) or @isempty(p, dir))
-          @set(p, BD.Entity.AMOEBA, dir)
+          @set(p, Entity.AMOEBA, dir)
 
   explode: (p) ->
-    explosion = if @isbutterfly(p) then BD.Entity.EXPLODETODIAMOND0 else BD.Entity.EXPLODETOSPACE0
+    explosion = if @isbutterfly(p) then Entity.EXPLODETODIAMOND0 else Entity.EXPLODETOSPACE0
     @set(p, explosion)
     for dir in [0 .. 7]
       if @isexplodable(p, dir)
         @set(p, explosion, dir)
 
   explode_dir: (p, dir) ->
-    p2 = new BD.Point(p.x, p.y, dir)
+    p2 = new Point(p.x, p.y, dir)
     @explode(p2)
 
   push: (p, dir) ->
-    p2 = new BD.Point(p.x, p.y, dir)
+    p2 = new Point(p.x, p.y, dir)
     if @isempty(p2, dir)
       if randomInt(1,8) is 1
-        @move(p2, dir, BD.Entity.BOULDER)
+        @move(p2, dir, Entity.BOULDER)
         if not @moving.grab
-          @move(p, dir, BD.Entity.ROCKFORD)
+          @move(p, dir, Entity.ROCKFORD)
 
   domagic: (p, to) ->
     if @magic.time > 0
       @magic.active = true
       @clear(p)
-      p2 = new BD.Point(p.x, p.y + 2)
+      p2 = new Point(p.x, p.y + 2)
       if @isempty(p2)
         @set(p2, to)
 
   entityDispatch: (e, p, moving_dir) ->
     switch e
-      when BD.Entity.PREROCKFORD1 then @updatePreRockford(p, 1)
-      when BD.Entity.PREROCKFORD2 then @updatePreRockford(p, 2)
-      when BD.Entity.PREROCKFORD3 then @updatePreRockford(p, 3)
-      when BD.Entity.PREROCKFORD4 then @updatePreRockford(p, 4)
-      when BD.Entity.ROCKFORD then @updateRockford(p, moving_dir)
-      when BD.Entity.BOULDER then @updateBoulder(p)
-      when BD.Entity.BOULDERFALLING then @updateBoulderFalling(p)
-      when BD.Entity.DIAMOND then @updateDiamond(p)
-      when BD.Entity.DIAMONDFALLING then @updateDiamondFalling(p)
-      when BD.Entity.FIREFLY1 then @updateFirefly(p, DIR.LEFT)
-      when BD.Entity.FIREFLY2 then @updateFirefly(p, DIR.UP)
-      when BD.Entity.FIREFLY3 then @updateFirefly(p, DIR.RIGHT)
-      when BD.Entity.FIREFLY4 then @updateFirefly(p, DIR.DOWN)
-      when BD.Entity.BUTTERFLY1 then @updateButterfly(p, DIR.LEFT)
-      when BD.Entity.BUTTERFLY2 then @updateButterfly(p, DIR.UP)
-      when BD.Entity.BUTTERFLY3 then @updateButterfly(p, DIR.RIGHT)
-      when BD.Entity.BUTTERFLY4 then @updateButterfly(p, DIR.DOWN)
-      when BD.Entity.EXPLODETOSPACE0 then @updateExplodeToSpace(p, 0)
-      when BD.Entity.EXPLODETOSPACE1 then @updateExplodeToSpace(p, 1)
-      when BD.Entity.EXPLODETOSPACE2 then @updateExplodeToSpace(p, 2)
-      when BD.Entity.EXPLODETOSPACE3 then @updateExplodeToSpace(p, 3)
-      when BD.Entity.EXPLODETOSPACE4 then @updateExplodeToSpace(p, 4)
-      when BD.Entity.EXPLODETODIAMOND0 then @updateExplodeToDiamond(p, 0)
-      when BD.Entity.EXPLODETODIAMOND1 then @updateExplodeToDiamond(p, 1)
-      when BD.Entity.EXPLODETODIAMOND2 then @updateExplodeToDiamond(p, 2)
-      when BD.Entity.EXPLODETODIAMOND3 then @updateExplodeToDiamond(p, 3)
-      when BD.Entity.EXPLODETODIAMOND4 then @updateExplodeToDiamond(p, 4)
-      when BD.Entity.AMOEBA then @updateAmoeba(p)
-      when BD.Entity.PREOUTBOX then @updatePreOutbox(p)
+      when Entity.PREROCKFORD1 then @updatePreRockford(p, 1)
+      when Entity.PREROCKFORD2 then @updatePreRockford(p, 2)
+      when Entity.PREROCKFORD3 then @updatePreRockford(p, 3)
+      when Entity.PREROCKFORD4 then @updatePreRockford(p, 4)
+      when Entity.ROCKFORD then @updateRockford(p, moving_dir)
+      when Entity.BOULDER then @updateBoulder(p)
+      when Entity.BOULDERFALLING then @updateBoulderFalling(p)
+      when Entity.DIAMOND then @updateDiamond(p)
+      when Entity.DIAMONDFALLING then @updateDiamondFalling(p)
+      when Entity.FIREFLY1 then @updateFirefly(p, DIR.LEFT)
+      when Entity.FIREFLY2 then @updateFirefly(p, DIR.UP)
+      when Entity.FIREFLY3 then @updateFirefly(p, DIR.RIGHT)
+      when Entity.FIREFLY4 then @updateFirefly(p, DIR.DOWN)
+      when Entity.BUTTERFLY1 then @updateButterfly(p, DIR.LEFT)
+      when Entity.BUTTERFLY2 then @updateButterfly(p, DIR.UP)
+      when Entity.BUTTERFLY3 then @updateButterfly(p, DIR.RIGHT)
+      when Entity.BUTTERFLY4 then @updateButterfly(p, DIR.DOWN)
+      when Entity.EXPLODETOSPACE0 then @updateExplodeToSpace(p, 0)
+      when Entity.EXPLODETOSPACE1 then @updateExplodeToSpace(p, 1)
+      when Entity.EXPLODETOSPACE2 then @updateExplodeToSpace(p, 2)
+      when Entity.EXPLODETOSPACE3 then @updateExplodeToSpace(p, 3)
+      when Entity.EXPLODETOSPACE4 then @updateExplodeToSpace(p, 4)
+      when Entity.EXPLODETODIAMOND0 then @updateExplodeToDiamond(p, 0)
+      when Entity.EXPLODETODIAMOND1 then @updateExplodeToDiamond(p, 1)
+      when Entity.EXPLODETODIAMOND2 then @updateExplodeToDiamond(p, 2)
+      when Entity.EXPLODETODIAMOND3 then @updateExplodeToDiamond(p, 3)
+      when Entity.EXPLODETODIAMOND4 then @updateExplodeToDiamond(p, 4)
+      when Entity.AMOEBA then @updateAmoeba(p)
+      when Entity.PREOUTBOX then @updatePreOutbox(p)
 
 
 timestamp = () -> new Date().getTime()
