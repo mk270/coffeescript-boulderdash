@@ -34,6 +34,19 @@ Dom =
   set: (id, html) -> Dom.get(id).innerHTML = html
   disable: (id, enabled) -> Dom.get(id).className = if enabled then "disabled" else ""
 
+DIR =
+  UP: 0
+  UPRIGHT: 1
+  RIGHT: 2
+  DOWNRIGHT: 3
+  DOWN: 4
+  DOWNLEFT: 5
+  LEFT: 6
+  UPLEFT: 7
+
+DIRX = [     0,          1,        1,            1,       0,          -1,      -1,        -1 ]
+DIRY = [    -1,         -1,        0,            1,       1,           1,       0,        -1 ]
+
 BD.extend(
   Entity:
     SPACE:
@@ -372,24 +385,13 @@ BD.extend(
         y: 8
         f: 8
         fps: 20 
-  DIR:
-    UP: 0
-    UPRIGHT: 1
-    RIGHT: 2
-    DOWNRIGHT: 3
-    DOWN: 4
-    DOWNLEFT: 5
-    LEFT: 6
-    UPLEFT: 7
-  DIRX: [     0,          1,        1,            1,       0,          -1,      -1,        -1 ],
-  DIRY: [    -1,         -1,        0,            1,       1,           1,       0,        -1 ],
   rotateLeft: (dir) -> (dir-2) + (if dir < 2 then 8 else 0)
   rotateRight: (dir) -> (dir+2) - (if dir > 5 then 8 else 0)
-  horizontal: (dir) -> (dir is BD.DIR.LEFT) or (dir is BD.DIR.RIGHT)
-  vertical: (dir) -> (dir is BD.DIR.UP) or (dir is BD.DIR.DOWN)
+  horizontal: (dir) -> (dir is DIR.LEFT) or (dir is DIR.RIGHT)
+  vertical: (dir) -> (dir is DIR.UP) or (dir is DIR.DOWN)
   Point: (x, y, dir) ->
-    @x = x + (BD.DIRX[dir] || 0)
-    @y = y + (BD.DIRY[dir] || 0)
+    @x = x + (DIRX[dir] || 0)
+    @y = y + (DIRY[dir] || 0)
   isFirefly: (o) -> (BD.Entity.FIREFLY1.code <= o.code) and (o.code <= BD.Entity.FIREFLY4.code)
   isButterfly: (o) -> (BD.Entity.BUTTERFLY1.code <= o.code) and (o.code <= BD.Entity.BUTTERFLY4.code)
 )
@@ -401,16 +403,16 @@ for key of BD.Entity
 BD.extend(
   Sequences:
     FIREFLIES: array_of_tuples( [
-      [BD.DIR.LEFT,  BD.Entity.FIREFLY1],
-      [BD.DIR.UP,    BD.Entity.FIREFLY2],
-      [BD.DIR.RIGHT, BD.Entity.FIREFLY3],
-      [BD.DIR.DOWN,  BD.Entity.FIREFLY4]
+      [DIR.LEFT,  BD.Entity.FIREFLY1],
+      [DIR.UP,    BD.Entity.FIREFLY2],
+      [DIR.RIGHT, BD.Entity.FIREFLY3],
+      [DIR.DOWN,  BD.Entity.FIREFLY4]
     ] )
     BUTTERFLIES: array_of_tuples( [
-      [BD.DIR.LEFT,  BD.Entity.BUTTERFLY1],
-      [BD.DIR.UP,    BD.Entity.BUTTERFLY2],
-      [BD.DIR.RIGHT, BD.Entity.BUTTERFLY3],
-      [BD.DIR.DOWN,  BD.Entity.BUTTERFLY4]
+      [DIR.LEFT,  BD.Entity.BUTTERFLY1],
+      [DIR.UP,    BD.Entity.BUTTERFLY2],
+      [DIR.RIGHT, BD.Entity.BUTTERFLY3],
+      [DIR.DOWN,  BD.Entity.BUTTERFLY4]
     ] )
     PREROCKFORDS: [ BD.Entity.PREROCKFORD1, BD.Entity.PREROCKFORD2, BD.Entity.PREROCKFORD3, BD.Entity.PREROCKFORD, BD.Entity.ROCKFORD ]
     EXPLODETOSPACE: [ BD.Entity.EXPLODETOSPACE0, BD.Entity.EXPLODETOSPACE1, BD.Entity.EXPLODETOSPACE2, BD.Entity.EXPLODETOSPACE3, BD.Entity.EXPLODETOSPACE4, BD.Entity.SPACE ]
@@ -512,9 +514,9 @@ class Render
     @ctx.drawImage(@ctxSprites.canvas, (sprite.x + f) * 32, sprite.y * 32, 32, 32, cell.p.x * @dx, (1 + cell.p.y) * @dy, @dx, @dy)
 
   rockford: (cell) ->
-    if @moving.dir is BD.DIR.LEFT or BD.vertical(@moving.dir) and @moving.lastXDir is BD.DIR.LEFT
+    if @moving.dir is DIR.LEFT or BD.vertical(@moving.dir) and @moving.lastXDir is DIR.LEFT
       @sprite(BD.Entity.ROCKFORD.left, cell)
-    else if @moving.dir is BD.DIR.RIGHT or BD.vertical(@moving.dir) and @moving.lastXDir is BD.DIR.RIGHT
+    else if @moving.dir is DIR.RIGHT or BD.vertical(@moving.dir) and @moving.lastXDir is DIR.RIGHT
       @sprite(BD.Entity.ROCKFORD.right, cell)
     else if @game.idle.blink and not @game.idle.tap
       @sprite(BD.Entity.ROCKFORD.blink, cell)
@@ -619,10 +621,10 @@ class Game
   next: () -> if (@index < CAVES.length-1)
                 @reset(@index+1)
 
-  get: (p,dir) -> @cells[p.x + (BD.DIRX[dir] or 0)][p.y + (BD.DIRY[dir] or 0)].object
+  get: (p,dir) -> @cells[p.x + (DIRX[dir] or 0)][p.y + (DIRY[dir] or 0)].object
     
   set: (p,o,dir) ->
-    cell = @cells[p.x + (BD.DIRX[dir] or 0)][p.y + (BD.DIRY[dir] or 0)]
+    cell = @cells[p.x + (DIRX[dir] or 0)][p.y + (DIRY[dir] or 0)]
     cell.object = o
     cell.frame = @frame
     @publish('cell', cell)
@@ -773,24 +775,24 @@ class Game
       @winLevel()
 
   updateRock: (p, rock) ->
-    if @isempty(p, BD.DIR.DOWN)
+    if @isempty(p, DIR.DOWN)
       @set(p, rock)
-    else if @isrounded(p, BD.DIR.DOWN) and @isempty(p, BD.DIR.LEFT) and @isempty(p, BD.DIR.DOWNLEFT)
-      @move(p, BD.DIR.LEFT, rock)
-    else if @isrounded(p, BD.DIR.DOWN) and @isempty(p, BD.DIR.RIGHT) and @isempty(p, BD.DIR.DOWNRIGHT)
-      @move(p, BD.DIR.RIGHT, rock)
+    else if @isrounded(p, DIR.DOWN) and @isempty(p, DIR.LEFT) and @isempty(p, DIR.DOWNLEFT)
+      @move(p, DIR.LEFT, rock)
+    else if @isrounded(p, DIR.DOWN) and @isempty(p, DIR.RIGHT) and @isempty(p, DIR.DOWNRIGHT)
+      @move(p, DIR.RIGHT, rock)
 
   updateRockFalling: (p, rock, rockAtRest, convertedRock) ->
-    if @isempty(p, BD.DIR.DOWN)
-      @move(p, BD.DIR.DOWN, rock)
-    else if @isvulnerable(p, BD.DIR.DOWN)
-      @explode_dir(p, BD.DIR.DOWN)
-    else if @ismagic(p, BD.DIR.DOWN)
+    if @isempty(p, DIR.DOWN)
+      @move(p, DIR.DOWN, rock)
+    else if @isvulnerable(p, DIR.DOWN)
+      @explode_dir(p, DIR.DOWN)
+    else if @ismagic(p, DIR.DOWN)
       @domagic(p, convertedRock)
-    else if @isrounded(p, BD.DIR.DOWN) and @isempty(p, BD.DIR.LEFT) and @isempty(p, BD.DIR.DOWNLEFT)
-      @move(p, BD.DIR.LEFT, rock)
-    else if @isrounded(p, BD.DIR.DOWN) and @isempty(p, BD.DIR.RIGHT) and @isempty(p, BD.DIR.DOWNRIGHT)
-      @move(p, BD.DIR.RIGHT, rock)
+    else if @isrounded(p, DIR.DOWN) and @isempty(p, DIR.LEFT) and @isempty(p, DIR.DOWNLEFT)
+      @move(p, DIR.LEFT, rock)
+    else if @isrounded(p, DIR.DOWN) and @isempty(p, DIR.RIGHT) and @isempty(p, DIR.DOWNRIGHT)
+      @move(p, DIR.RIGHT, rock)
     else
       @set(p, rockAtRest)
 
@@ -800,7 +802,7 @@ class Game
   updateDiamondFalling: (p) -> @updateRockFalling(p, BD.Entity.DIAMONDFALLING, BD.Entity.DIAMOND, BD.Entity.BOULDER)
 
   adjacent: (p, fn) ->
-    dirs = [ BD.DIR.UP, BD.DIR.DOWN, BD.DIR.LEFT, BD.DIR.RIGHT ]
+    dirs = [ DIR.UP, DIR.DOWN, DIR.LEFT, DIR.RIGHT ]
 
     rv = false
     for i in [0 .. dirs.length-1]
@@ -845,7 +847,7 @@ class Game
                  (randomInt(1, 128) < 4)
                else
                  (randomInt(1, 4) is 1)
-        dir  = randomChoice([BD.DIR.UP, BD.DIR.DOWN, BD.DIR.LEFT, BD.DIR.RIGHT])
+        dir  = randomChoice([DIR.UP, DIR.DOWN, DIR.LEFT, DIR.RIGHT])
         if grow and (@isdirt(p, dir) or @isempty(p, dir))
           @set(p, BD.Entity.AMOEBA, dir)
 
@@ -887,14 +889,14 @@ class Game
       when BD.Entity.BOULDERFALLING then @updateBoulderFalling(p)
       when BD.Entity.DIAMOND then @updateDiamond(p)
       when BD.Entity.DIAMONDFALLING then @updateDiamondFalling(p)
-      when BD.Entity.FIREFLY1 then @updateFirefly(p, BD.DIR.LEFT)
-      when BD.Entity.FIREFLY2 then @updateFirefly(p, BD.DIR.UP)
-      when BD.Entity.FIREFLY3 then @updateFirefly(p, BD.DIR.RIGHT)
-      when BD.Entity.FIREFLY4 then @updateFirefly(p, BD.DIR.DOWN)
-      when BD.Entity.BUTTERFLY1 then @updateButterfly(p, BD.DIR.LEFT)
-      when BD.Entity.BUTTERFLY2 then @updateButterfly(p, BD.DIR.UP)
-      when BD.Entity.BUTTERFLY3 then @updateButterfly(p, BD.DIR.RIGHT)
-      when BD.Entity.BUTTERFLY4 then @updateButterfly(p, BD.DIR.DOWN)
+      when BD.Entity.FIREFLY1 then @updateFirefly(p, DIR.LEFT)
+      when BD.Entity.FIREFLY2 then @updateFirefly(p, DIR.UP)
+      when BD.Entity.FIREFLY3 then @updateFirefly(p, DIR.RIGHT)
+      when BD.Entity.FIREFLY4 then @updateFirefly(p, DIR.DOWN)
+      when BD.Entity.BUTTERFLY1 then @updateButterfly(p, DIR.LEFT)
+      when BD.Entity.BUTTERFLY2 then @updateButterfly(p, DIR.UP)
+      when BD.Entity.BUTTERFLY3 then @updateButterfly(p, DIR.RIGHT)
+      when BD.Entity.BUTTERFLY4 then @updateButterfly(p, DIR.DOWN)
       when BD.Entity.EXPLODETOSPACE0 then @updateExplodeToSpace(p, 0)
       when BD.Entity.EXPLODETOSPACE1 then @updateExplodeToSpace(p, 1)
       when BD.Entity.EXPLODETOSPACE2 then @updateExplodeToSpace(p, 2)
@@ -921,8 +923,6 @@ KEY =
   UP: 38
   RIGHT: 39
   DOWN: 40
-
-DIR  = BD.DIR
 
 moving =
   dir:      DIR.NONE
