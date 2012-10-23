@@ -25,15 +25,16 @@ array_of_tuples = (l) ->
     [k, v] = i
     tmp[k] = v
   tmp
-    
+
+Dom = 
+  get: (id) -> if (id instanceof HTMLElement)
+                  id
+                else 
+                  document.getElementById(id)
+  set: (id, html) -> Dom.get(id).innerHTML = html
+  disable: (id, enabled) -> Dom.get(id).className = if enabled then "disabled" else ""
+
 BD.extend(
-  Dom:
-    get: (id) -> if (id instanceof HTMLElement)
-                   id
-                 else 
-                   document.getElementById(id)
-    set: (id, html) -> BD.Dom.get(id).innerHTML = html
-    disable: (id, enabled) -> BD.Dom.get(id).className = if enabled then "disabled" else ""
   Entity:
     SPACE:
       code: 0x00
@@ -417,19 +418,18 @@ BD.extend(
 )
 
 
-BD.Render = (game, moving) ->
-  @game = game;
-  @moving = moving;
-  game.subscribe('level', @onChangeLevel,   this)
-  game.subscribe('score', @invalidateScore, this)
-  game.subscribe('timer', @invalidateScore, this)
-  game.subscribe('flash', @invalidateCave,  this)
-  game.subscribe('cell',  @invalidateCell,  this)
-  null
+class Render
+  constructor: (game, moving) ->
+    @game = game;
+    @moving = moving;
+    game.subscribe('level', @onChangeLevel,   this)
+    game.subscribe('score', @invalidateScore, this)
+    game.subscribe('timer', @invalidateScore, this)
+    game.subscribe('flash', @invalidateCave,  this)
+    game.subscribe('cell',  @invalidateCell,  this)
 
-BD.Render.prototype =
   reset: (sprites) ->
-    @canvas = BD.Dom.get('canvas')
+    @canvas = Dom.get('canvas')
     @ctx = @canvas.getContext('2d')
     @sprites = sprites
     @fps = 30
@@ -448,8 +448,8 @@ BD.Render.prototype =
     @colors(info.color1, info.color2)
     @invalidateCave()
     @invalidateScore()
-    BD.Dom.disable('prev', info.index is 0)
-    BD.Dom.disable('next', info.index is CAVES.length - 1)
+    Dom.disable('prev', info.index is 0)
+    Dom.disable('next', info.index is CAVES.length - 1)
 
   invalid:
     score: true
@@ -525,7 +525,7 @@ BD.Render.prototype =
     else
       @sprite(BD.Entity.ROCKFORD.sprite, cell)
 
-  description: (msg) -> BD.Dom.set('description', msg)
+  description: (msg) -> Dom.set('description', msg)
 
   colors: (color1, color2) ->
     @ctxSprites.drawImage(@sprites, 
@@ -922,8 +922,6 @@ KEY =
   RIGHT: 39
   DOWN: 40
 
-Dom = BD.Dom
-
 DIR  = BD.DIR
 
 moving =
@@ -960,7 +958,7 @@ moving =
   #=========================================================================
 
 game   = new Game(moving)       # the boulderdash game logic (rendering independent)
-render = new BD.Render(game, moving) # the boulderdash game renderer
+render = new Render(game, moving) # the boulderdash game renderer
 stats  = new Stats()      # the FPS counter widget
 
   #-------------------------------------------------------------------------
