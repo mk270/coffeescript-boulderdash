@@ -1,11 +1,11 @@
 
 
+Boulderdash = function() {
+
+
   timestamp = function() {
     return new Date().getTime();
   };
-
-
-Boulderdash = function() {
 
   //=========================================================================
   // GENERAL purpose constants and helper methods
