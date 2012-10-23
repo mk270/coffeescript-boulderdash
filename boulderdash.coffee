@@ -571,14 +571,13 @@ randomInt = (min, max) -> Math.floor(random(min,max))
 randomChoice = (choices) ->
   choices[Math.round(random(0, choices.length-1))]
 
-Game = (moving, options) ->
-  @options = options or {}
-  @storage = window.localStorage or {}
-  @score   = 0
-  @moving  = moving
-  null
+class Game
+  constructor: (moving, options) ->
+    @options = options or {}
+    @storage = window.localStorage or {}
+    @score   = 0
+    @moving  = moving
 
-Game.prototype.extend(
   reset: (n) ->
     n = Math.min(CAVES.length-1, Math.max(0, ((if typeof n is 'number' then n else @storage.level) or 0)))
     @index    = @storage.level = n        # cave index
@@ -909,7 +908,7 @@ Game.prototype.extend(
       when BD.Entity.AMOEBA then @updateAmoeba(p)
       when BD.Entity.PREOUTBOX then @updatePreOutbox(p)
 
-)
+
 timestamp = () -> new Date().getTime()
 
 KEY =
