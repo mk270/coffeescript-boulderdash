@@ -466,7 +466,7 @@ class Render
     @number(3, @game.diamonds.needed, 2, true)
     @letter(5, '$')
     @number(6, @game.diamonds.collected >= (if @game.diamonds.needed then @game.diamonds.extra else @game.diamonds.value), 2)
-    @number(12, @game.diamonds.collected, 2, true)
+    @number(12, @game.diamonds.collected, 3, true)
     @number(25, @game.timer, 3)
     @number(31, @game.score, 6)
     @validateScore()
