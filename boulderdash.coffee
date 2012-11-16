@@ -764,25 +764,25 @@ class Game
       @move(p, dir, Entity.ROCKFORD)
       @winLevel()
 
-  updateRock: (p, rock) ->
+  updateRock: (p, fallingRock) ->
     if @isempty(p, DIR.DOWN)
-      @set(p, rock)
+      @move(p, DIR.DOWN, fallingRock)
     else if @isrounded(p, DIR.DOWN) and @isempty(p, DIR.LEFT) and @isempty(p, DIR.DOWNLEFT)
-      @move(p, DIR.LEFT, rock)
+      @move(p, DIR.LEFT, fallingRock)
     else if @isrounded(p, DIR.DOWN) and @isempty(p, DIR.RIGHT) and @isempty(p, DIR.DOWNRIGHT)
-      @move(p, DIR.RIGHT, rock)
+      @move(p, DIR.RIGHT, fallingRock)
 
-  updateRockFalling: (p, rock, rockAtRest, convertedRock) ->
+  updateRockFalling: (p, fallingRock, rockAtRest, convertedRock) ->
     if @isempty(p, DIR.DOWN)
-      @move(p, DIR.DOWN, rock)
+      @move(p, DIR.DOWN, fallingRock)
     else if @isvulnerable(p, DIR.DOWN)
       @explode_dir(p, DIR.DOWN)
     else if @ismagic(p, DIR.DOWN)
-      @domagic(p, convertedRock)
+      @domagic(p, convertedFallingRock)
     else if @isrounded(p, DIR.DOWN) and @isempty(p, DIR.LEFT) and @isempty(p, DIR.DOWNLEFT)
-      @move(p, DIR.LEFT, rock)
+      @move(p, DIR.LEFT, fallingRock)
     else if @isrounded(p, DIR.DOWN) and @isempty(p, DIR.RIGHT) and @isempty(p, DIR.DOWNRIGHT)
-      @move(p, DIR.RIGHT, rock)
+      @move(p, DIR.RIGHT, fallingRock)
     else
       @set(p, rockAtRest)
 
