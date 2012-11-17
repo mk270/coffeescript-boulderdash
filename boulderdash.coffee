@@ -596,6 +596,7 @@ class Game
     @magic =
       active: false
       time: @cave.magicWallMillingTime/@step
+      expired: false
 
     for y in [0 .. @height-1]
       for x in [0 .. @width-1]
@@ -717,7 +718,10 @@ class Game
         @amoeba.dead = Entity.BOULDER
       else if @amoeba.slow > 0
         @amoeba.slow--
-    @magic.active = @magic.active and (--@magic.time > 0)
+    if @magic.active
+      if --@magic.time <= 0
+        @magic.active = false
+        @magic.expired = true
     @flashWhenEnoughDiamondsCollected()
     if @won
       @runOutTimer()
@@ -860,13 +864,18 @@ class Game
         if not @moving.grab
           @move(p, dir, Entity.ROCKFORD)
 
+  convert: (p, to) ->
+    @clear(p)
+    p2 = new Point(p.x, p.y + 2)
+    if @isempty(p2)
+       @set(p2, to)
+
   domagic: (p, to) ->
-    if @magic.time > 0
+    if @magic.time > 0 
       @magic.active = true
-      @clear(p)
-      p2 = new Point(p.x, p.y + 2)
-      if @isempty(p2)
-        @set(p2, to)
+      @convert(p, to)
+    else if @magic.expired
+      @convert(p, Entity.SPACE)
 
   entityDispatch: (e, p, moving_dir) ->
     switch e
