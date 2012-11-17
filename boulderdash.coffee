@@ -778,7 +778,7 @@ class Game
     else if @isvulnerable(p, DIR.DOWN)
       @explode_dir(p, DIR.DOWN)
     else if @ismagic(p, DIR.DOWN)
-      @domagic(p, convertedFallingRock)
+      @domagic(p, convertedRock)
     else if @isrounded(p, DIR.DOWN) and @isempty(p, DIR.LEFT) and @isempty(p, DIR.DOWNLEFT)
       @move(p, DIR.LEFT, fallingRock)
     else if @isrounded(p, DIR.DOWN) and @isempty(p, DIR.RIGHT) and @isempty(p, DIR.DOWNRIGHT)
