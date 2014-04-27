@@ -9,6 +9,14 @@ An HTML5 Boulderdash Game
 
 >> _*SUPPORTED BROWSERS*: Chrome, Firefox, Safari, Opera and IE9+_
 
+To run
+======
+
+ * git clone https://github.com/mk270/coffeescript-boulderdash.git
+ * cd coffeescript-boulderdash
+ * coffee -c boulderdash.coffee && python -m SimpleHTTPServer
+ * browse to http://localhost:8000/
+
 TODO
 ====
 
