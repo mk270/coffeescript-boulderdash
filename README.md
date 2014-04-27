@@ -15,7 +15,7 @@ To run
  * git clone https://github.com/mk270/coffeescript-boulderdash.git
  * cd coffeescript-boulderdash
  * coffee -c boulderdash.coffee && python -m SimpleHTTPServer
- * browse to http://localhost:8000/
+ * browse to [http://localhost:8000/](http://localhost:8000/)
 
 TODO
 ====
